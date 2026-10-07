@@ -193,7 +193,7 @@ export interface ServiceImage {
 export const serviceImages: Record<string, ServiceImage> = {
   "check-up-and-cleaning": {
     src: "/media/services/check-up-and-cleaning.jpg",
-    alt: "Dental instruments laid out on a tray beside gloved hands",
+    alt: "Gloved hands holding a dental mouth mirror and probe over a tray of dental instruments",
     illustrative: true,
   },
   "teeth-whitening": {
