@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {
   RiExternalLinkLine,
+  RiFacebookCircleLine,
   RiMailLine,
   RiMapPin2Line,
   RiPhoneLine,
@@ -200,6 +201,19 @@ export default async function ContactPage() {
               <p className="mt-2 font-body text-sm text-ink-600">
                 {clinic.languages.join(" · ")}
               </p>
+
+              {clinic.social.facebook && (
+                <a
+                  href={clinic.social.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex items-center gap-2 rounded-full border border-brand-700/25 bg-brand-50 px-3.5 py-1.5 font-ui text-xs font-medium text-brand-800 transition-colors duration-200 hover:bg-brand-100"
+                >
+                  <RiFacebookCircleLine aria-hidden="true" className="h-4 w-4" />
+                  Follow the clinic on Facebook
+                  <span className="sr-only">(opens in a new tab)</span>
+                </a>
+              )}
             </div>
           </div>
         </div>

@@ -39,7 +39,15 @@ export const clinic = {
     email: "Drbouamara@gmail.com",
     /** WhatsApp is enabled on the secondary number only (digits, E.164). */
     whatsapp: "213671149592",
-    /** City confirmed by the clinic; the street address has not been supplied. */
+    /**
+     * City — confirmed by the clinic: Djelfa.
+     *
+     * Note: the clinic's own printed material and its Facebook page print
+     * "MESSAOUDA" (a town in Djelfa Province). If the practice is in that town
+     * rather than the city itself, change `addressLine` to
+     * "Messaouda, Djelfa, Algeria" — one line, and it updates everywhere
+     * (header, footer, contact page, metadata and structured data).
+     */
     city: "Djelfa",
     country: "Algeria",
     addressLine: "Djelfa, Algeria",
@@ -55,10 +63,13 @@ export const clinic = {
     mapEmbedUrl: null as string | null,
   },
 
-  /** Social profiles — `null` hides the icon entirely. */
+  /**
+   * Social profiles — `null` hides the icon entirely.
+   * The Facebook page is the clinic's own account, supplied by the clinic.
+   */
   social: {
     instagram: null as string | null,
-    facebook: null as string | null,
+    facebook: "https://www.facebook.com/drbouamaramessaouda" as string | null,
     tiktok: null as string | null,
     youtube: null as string | null,
   },
@@ -128,7 +139,8 @@ export const clinicClosure: { from: string; to: string; reason: string } | null 
  */
 export const PLACEHOLDER_FIELDS = [
   "clinic.contact.streetAddress",
-  "clinic.social",
+  "clinic.social.instagram",
+  "clinic.social.youtube",
   "media.brand.logo",
   "media.doctor.portrait",
   "media.facility",

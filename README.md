@@ -232,7 +232,7 @@ never reach the browser.
 | What | Where |
 |---|---|
 | **Logo artwork** | Save the exported files in `public/brand/`, then set `brand.logoLight` / `logoDark` / `markLight` / `markDark` in `src/content/media.ts`. Until then a built-in navy/gold tooth-and-smile mark plus a typographic lockup is used (`src/components/brand/{Logo,BrandMark,mark}.tsx`, favicon `src/app/icon.svg`). |
-| Clinic name, tagline, phone, email, WhatsApp, town, Maps link | `src/content/site.ts` |
+| Clinic name, tagline, phone, email, WhatsApp, town, Maps link, social profiles | `src/content/site.ts` |
 | Opening hours | **Admin → Opening hours** (or `src/content/site.ts` for the built-in default) |
 | **Photographs** | Save files in `public/media/`, then set the path in `src/content/media.ts` — doctor portrait, facility gallery, before/after results, TV-appearance still |
 | **TV interview link** | `src/content/sections.ts` → `mediaAppearances[].videoUrl` — the button activates and opens YouTube in a new tab; nothing is embedded |

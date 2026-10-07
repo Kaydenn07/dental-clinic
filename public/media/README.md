@@ -18,6 +18,19 @@ public/media/
   appearances/   nabd-el-seha.jpg           still from the TV appearance
 ```
 
+## Drop-in checklist for the clinic photos
+
+| Supplied photo | Save as | Then set in `src/content/media.ts` |
+|---|---|---|
+| Dr. Bouamara — Radio El Bahdia studio (person on the **right**, cream striped jacket) | `doctor/dr-bouamara.jpg` | `doctor.portrait.src` |
+| TV appearance still (white blouse, beige hijab, pearl collar) | `appearances/nabd-el-seha.jpg` | `appearanceThumbnail` |
+| Before/after — male patient, close-up pair | `results/case-01-before.jpg` + `results/case-01-after.jpg` | `results[0].before` / `.after` |
+| Before/after — "Extra orale avec sourire large" pair | `results/case-02-before.jpg` + `results/case-02-after.jpg` | `results[1].before` / `.after` |
+| Before/after — retractor view, upper and lower | `results/case-03-before.jpg` + `results/case-03-after.jpg` | `results[2].before` / `.after` |
+
+Cases 01–03 already carry `consentOnFile: true`, so they appear as soon as the
+files exist. Crop to the relevant area and keep the originals untouched.
+
 ## How to attach a photo
 
 1. Save the file in the matching folder above (JPEG, ideally 1600–2400 px on the

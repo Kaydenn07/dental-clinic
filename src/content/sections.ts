@@ -123,10 +123,11 @@ export const mediaAppearances: MediaAppearance[] = [
     topic: "جراحة الأسنان والرياضة",
     topicTranslation: "Dental surgery and sport",
     /**
-     * Official link supplied by the clinic. It opens on YouTube in a new tab —
-     * the video is never embedded on this site.
+     * Official link supplied by the clinic, starting at her part of the
+     * programme. It opens on YouTube in a new tab — the video is never embedded
+     * on this site.
      */
-    videoUrl: "https://youtu.be/08k-7ALuaQY",
+    videoUrl: "https://www.youtube.com/watch?v=08k-7ALuaQY&t=1230s",
     thumbnail: appearanceThumbnail,
     isPlaceholder: false,
   },
