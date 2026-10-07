@@ -45,3 +45,6 @@ next-env.d.ts
 
 # original clinic photographs (processed into public/media by npm run media:setup)
 /media-source
+
+# throwaway image-search output
+/image-search

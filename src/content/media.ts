@@ -154,6 +154,8 @@ const RESULT_CAPTIONS: Record<string, string> = {
   "case-02": "Smile view, before and after.",
   "case-03": "Frontal view, before and after.",
   "case-04": "Lateral view, before and after.",
+  "case-05": "Intraoral view, before and after.",
+  "case-06": "Intraoral view, before and after.",
 };
 
 /**
