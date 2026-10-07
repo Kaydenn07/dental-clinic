@@ -4,7 +4,8 @@ import { useActionState } from "react";
 import { RiCheckLine, RiLoader4Line, RiSendPlaneLine } from "react-icons/ri";
 
 import { Alert } from "@/components/ui/primitives";
-import { initialFormState, submitContactMessage, type FormState } from "@/lib/actions/public-booking";
+import { submitContactMessage } from "@/lib/actions/public-booking";
+import { initialFormState, type FormState } from "@/lib/forms/state";
 import { cn } from "@/lib/utils";
 
 const SUBJECTS = [

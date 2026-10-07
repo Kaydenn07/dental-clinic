@@ -5,28 +5,30 @@ import Link from "next/link";
 import {
   RiArrowLeftLine,
   RiArrowRightLine,
-  RiCalendarLine,
+  RiCalendarCheckLine,
   RiCheckLine,
+  RiErrorWarningLine,
   RiLoader4Line,
+  RiRefreshLine,
   RiUserLine,
 } from "react-icons/ri";
 
-import {
-  Alert,
-  PlaceholderBadge,
-  StatusBadge,
-} from "@/components/ui/primitives";
-import { scheduleConfirmed } from "@/content/site";
-import {
-  fetchAvailabilityAction,
-  initialFormState,
-  submitAppointmentRequest,
-  type AvailabilityResponse,
-  type FormState,
-} from "@/lib/actions/public-booking";
+import { DateCalendar } from "@/components/booking/DateCalendar";
+import { Alert, PlaceholderBadge, StatusBadge } from "@/components/ui/primitives";
+import { bookingConfig } from "@/lib/booking/config";
 import { formatDateKey, formatTimeLabel } from "@/lib/booking/time";
+import type {
+  BookingCalendar,
+  DayAvailability,
+  TimeSlot,
+} from "@/lib/booking/types";
+import {
+  fetchDayAvailabilityAction,
+  submitAppointmentRequest,
+  type DayAvailabilityResponse,
+} from "@/lib/actions/public-booking";
+import { initialFormState, type FormState } from "@/lib/forms/state";
 import { cn } from "@/lib/utils";
-import type { DayAvailability } from "@/lib/booking/types";
 import type { Service } from "@/types/content";
 
 type Step = 1 | 2 | 3;
@@ -37,19 +39,51 @@ const STEP_LABELS: Record<Step, string> = {
   3: "Your details",
 };
 
+/**
+ * Times are grouped so that a 24-hour schedule stays readable: with the clinic
+ * open around the clock there are 48 half-hour slots to choose from.
+ */
+const SLOT_GROUPS = [
+  { id: "night", label: "Night", range: "00:00 – 05:59", from: 0, to: 6 },
+  { id: "morning", label: "Morning", range: "06:00 – 11:59", from: 6, to: 12 },
+  { id: "afternoon", label: "Afternoon", range: "12:00 – 17:59", from: 12, to: 18 },
+  { id: "evening", label: "Evening", range: "18:00 – 23:59", from: 18, to: 24 },
+] as const;
+
+function groupSlots(slots: TimeSlot[]) {
+  return SLOT_GROUPS.map((group) => ({
+    ...group,
+    slots: slots.filter((slot) => {
+      const hour = Number(slot.time.slice(0, 2));
+      return hour >= group.from && hour < group.to;
+    }),
+  })).filter((group) => group.slots.length > 0);
+}
+
 export function BookingWizard({
   services,
+  calendar,
   initialServiceId,
+  initialDay = null,
 }: {
   services: Service[];
+  calendar: BookingCalendar;
   initialServiceId?: string;
+  /** Availability for `calendar.firstBookableDate`, computed on the server. */
+  initialDay?: DayAvailability | null;
 }) {
   const [step, setStep] = useState<Step>(initialServiceId ? 2 : 1);
   const [serviceId, setServiceId] = useState<string>(initialServiceId ?? "");
-  const [availability, setAvailability] = useState<AvailabilityResponse | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>(
+    initialServiceId ? (calendar.firstBookableDate ?? "") : "",
+  );
   const [selectedTime, setSelectedTime] = useState<string>("");
-  const [loadingAvailability, startAvailability] = useTransition();
+
+  const [day, setDay] = useState<DayAvailability | null>(
+    initialServiceId ? initialDay : null,
+  );
+  const [dayError, setDayError] = useState<string>("");
+  const [loadingDay, startDayTransition] = useTransition();
 
   const [formState, formAction, submitting] = useActionState<FormState, FormData>(
     submitAppointmentRequest,
@@ -61,30 +95,56 @@ export function BookingWizard({
     [services, serviceId],
   );
 
-  // Load availability whenever the chosen treatment changes.
-  useEffect(() => {
-    if (!serviceId) {
-      setAvailability(null);
+  /** Loads the times for one clinic-time day. */
+  const loadDay = (date: string, id: string) => {
+    if (!id || !date) {
+      setDay(null);
       return;
     }
 
-    setSelectedDate("");
-    setSelectedTime("");
-
-    startAvailability(() => {
-      void fetchAvailabilityAction(serviceId).then((result) => {
-        setAvailability(result);
-        const firstOpenDay = result.days.find((day) =>
-          day.slots.some((slot) => slot.available),
-        );
-        if (firstOpenDay) setSelectedDate(firstOpenDay.date);
-      });
+    setDayError("");
+    // React 19 tracks the awaited work inside an async transition, so the
+    // "Checking times…" state stays up until the server answers.
+    startDayTransition(async () => {
+      try {
+        const result: DayAvailabilityResponse = await fetchDayAvailabilityAction(id, date);
+        if (!result.ok || !result.day) {
+          setDay(null);
+          setDayError(result.message ?? "Times could not be loaded for that day.");
+          return;
+        }
+        setDay(result.day);
+      } catch {
+        setDay(null);
+        setDayError("Times could not be loaded. Please check your connection and try again.");
+      }
     });
-  }, [serviceId]);
+  };
 
-  const activeDay: DayAvailability | undefined = availability?.days.find(
-    (day) => day.date === selectedDate,
-  );
+  // Step 2 always has a usable date selected, and its times loaded.
+  useEffect(() => {
+    if (!serviceId) {
+      setDay(null);
+      return;
+    }
+
+    const nextDate = selectedDate || calendar.firstBookableDate || "";
+    if (!nextDate) return;
+
+    if (nextDate !== selectedDate) setSelectedDate(nextDate);
+    loadDay(nextDate, serviceId);
+    // Re-running only when the treatment or the chosen date actually changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serviceId, selectedDate]);
+
+  /** Choosing a date clears any time chosen on the previous day. */
+  const chooseDate = (date: string) => {
+    setSelectedTime("");
+    setSelectedDate(date);
+  };
+
+  const availableSlots = day?.slots.filter((slot) => slot.available) ?? [];
+  const totalSlots = day?.slots.length ?? 0;
 
   // ------------------------------------------------------------- success ---
   if (formState.ok && formState.reference) {
@@ -138,6 +198,7 @@ export function BookingWizard({
               setServiceId("");
               setSelectedDate("");
               setSelectedTime("");
+              setDay(null);
               window.location.reload();
             }}
           >
@@ -158,11 +219,19 @@ export function BookingWizard({
           const isDone = step > value;
           return (
             <li key={value} className="flex-1">
-              <div
+              <button
+                type="button"
+                onClick={() => {
+                  // Backwards only: forward navigation requires a valid choice.
+                  if (value < step) setStep(value);
+                }}
+                disabled={value > step}
                 aria-current={isActive ? "step" : undefined}
                 className={cn(
-                  "flex h-full flex-col gap-1 border-r border-ink-900/8 px-4 py-4 last:border-r-0 sm:px-6",
+                  "flex h-full w-full flex-col gap-1 border-r border-ink-900/8 px-4 py-4 text-left last:border-r-0 sm:px-6",
                   isActive && "bg-brand-700/[0.04]",
+                  value < step && "cursor-pointer hover:bg-cream-50",
+                  value > step && "cursor-default",
                 )}
               >
                 <span
@@ -181,21 +250,13 @@ export function BookingWizard({
                 >
                   {STEP_LABELS[value]}
                 </span>
-              </div>
+              </button>
             </li>
           );
         })}
       </ol>
 
       <div className="p-6 sm:p-8 lg:p-10">
-        {!scheduleConfirmed && (
-          <Alert tone="warning" title="Demo opening hours" className="mb-6">
-            The times below are generated from a demonstration schedule. The clinic&apos;s real opening
-            hours still need to be confirmed — send a request anyway and the clinic will propose a
-            time.
-          </Alert>
-        )}
-
         {/* Step 1 — treatment */}
         {step === 1 && (
           <div>
@@ -249,7 +310,7 @@ export function BookingWizard({
                 disabled={!serviceId}
                 onClick={() => setStep(2)}
               >
-                Choose a time
+                Choose a date &amp; time
                 <RiArrowRightLine aria-hidden="true" className="h-4 w-4" />
               </button>
             </div>
@@ -268,113 +329,160 @@ export function BookingWizard({
               )}
             </div>
 
-            {loadingAvailability && (
-              <p className="mt-6 flex items-center gap-2 font-body text-sm text-ink-500">
-                <RiLoader4Line aria-hidden="true" className="h-4 w-4 animate-spin" />
-                Checking availability…
-              </p>
-            )}
-
-            {!loadingAvailability && availability && !availability.configured && (
-              <Alert tone="warning" className="mt-6" title="Online booking is not open yet">
-                {availability.message}
+            {!selectedService && (
+              <Alert tone="info" className="mt-6" title="Choose a treatment first">
+                Times depend on how long the appointment takes, so pick a treatment in step 1.
               </Alert>
             )}
 
-            {!loadingAvailability && availability?.configured && (
-              <>
-                <div className="mt-6">
-                  <p className="label">
-                    <RiCalendarLine aria-hidden="true" className="mr-1.5 inline h-3.5 w-3.5" />
-                    Available days
+            {!calendar.configured && (
+              <Alert tone="warning" className="mt-6" title="Online booking is not open yet">
+                The clinic&apos;s opening hours are not configured, so online times are unavailable.
+                Please call the clinic and it will arrange a time with you.
+              </Alert>
+            )}
+
+            {calendar.configured && (
+              <div className="mt-6 grid gap-6 lg:grid-cols-[22rem_1fr] lg:items-start">
+                {/* Calendar */}
+                <div className="space-y-3">
+                  <DateCalendar
+                    days={calendar.days}
+                    selectedDate={selectedDate}
+                    todayKey={calendar.todayKey}
+                    onSelect={chooseDate}
+                    disabled={!selectedService}
+                  />
+
+                  <p className="font-body text-xs leading-relaxed text-ink-500">
+                    The clinic is open 24 hours a day, every day. Dates up to{" "}
+                    {calendar.horizonDays} days ahead can be requested, and times start{" "}
+                    {calendar.minimumNoticeHours === 1
+                      ? "1 hour"
+                      : `${calendar.minimumNoticeHours} hours`}{" "}
+                    from now.
                   </p>
-                  <div
-                    role="tablist"
-                    aria-label="Available days"
-                    className="flex gap-2 overflow-x-auto pb-2"
-                  >
-                    {availability.days.map((day) => {
-                      const freeCount = day.slots.filter((slot) => slot.available).length;
-                      const selected = day.date === selectedDate;
-                      const disabled = freeCount === 0;
-                      return (
-                        <button
-                          key={day.date}
-                          type="button"
-                          role="tab"
-                          aria-selected={selected}
-                          disabled={disabled}
-                          onClick={() => {
-                            setSelectedDate(day.date);
-                            setSelectedTime("");
-                          }}
-                          className={cn(
-                            "min-w-[8.5rem] shrink-0 rounded-xl border px-3 py-3 text-left transition-all duration-200",
-                            selected
-                              ? "border-brand-700 bg-brand-700 text-white shadow-soft"
-                              : disabled
-                                ? "cursor-not-allowed border-ink-900/8 bg-cream-50 text-ink-300"
-                                : "border-ink-900/12 bg-white text-ink-800 hover:border-brand-700/40",
-                          )}
-                        >
-                          <span className="block font-ui text-xs uppercase tracking-wider opacity-80">
-                            {formatDateKey(day.date).split(" ").slice(0, 3).join(" ")}
-                          </span>
-                          <span className="mt-1 block font-ui text-sm font-medium">
-                            {freeCount > 0 ? `${freeCount} slots` : "Full"}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
 
-                {activeDay && (
-                  <div className="mt-6">
-                    <p className="label">Available times</p>
-                    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-                      {activeDay.slots.map((slot) => {
-                        const selected = slot.time === selectedTime;
-                        return (
-                          <li key={slot.time}>
-                            <button
-                              type="button"
-                              disabled={!slot.available}
-                              aria-pressed={selected}
-                              title={
-                                slot.available
-                                  ? undefined
-                                  : slot.unavailableReason === "booked"
-                                    ? "Already booked"
-                                    : slot.unavailableReason === "lead_time"
-                                      ? "Too soon — please pick a later slot"
-                                      : "Unavailable"
-                              }
-                              onClick={() => setSelectedTime(slot.time)}
-                              className={cn(
-                                "w-full rounded-lg border px-3 py-2.5 font-ui text-sm transition-all duration-200",
-                                selected
-                                  ? "border-brand-700 bg-brand-700 text-white"
-                                  : slot.available
-                                    ? "border-ink-900/12 bg-white text-ink-800 hover:border-brand-700/50 hover:text-brand-700"
-                                    : "cursor-not-allowed border-ink-900/8 bg-cream-100 text-ink-300 line-through",
-                              )}
-                            >
-                              {formatTimeLabel(slot.time)}
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
+                {/* Times */}
+                <div className="rounded-card border border-ink-900/10 bg-cream-50 p-5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h3 className="flex items-center gap-2 font-heading text-lg text-ink-900">
+                      <RiCalendarCheckLine
+                        aria-hidden="true"
+                        className="h-4 w-4 text-gold-ink"
+                      />
+                      {selectedDate ? formatDateKey(selectedDate) : "Choose a date"}
+                    </h3>
 
-                    {activeDay.slots.length === 0 && (
-                      <p className="mt-3 font-body text-sm text-ink-500">
-                        No times available on this day.
-                      </p>
+                    {day && !loadingDay && (
+                      <span className="font-ui text-xs text-ink-500">
+                        {availableSlots.length} of {totalSlots} slots free
+                      </span>
                     )}
                   </div>
-                )}
-              </>
+
+                  {!selectedService && (
+                    <p className="mt-4 font-body text-sm text-ink-500">
+                      Pick a treatment to see the times available on each day.
+                    </p>
+                  )}
+
+                  {selectedService && loadingDay && (
+                    <p className="mt-6 flex items-center gap-2 font-body text-sm text-ink-500">
+                      <RiLoader4Line aria-hidden="true" className="h-4 w-4 animate-spin" />
+                      Checking times…
+                    </p>
+                  )}
+
+                  {selectedService && !loadingDay && dayError && (
+                    <div className="mt-5" role="status">
+                      <p className="flex items-start gap-2 font-body text-sm text-ink-700">
+                        <RiErrorWarningLine
+                          aria-hidden="true"
+                          className="mt-0.5 h-4 w-4 shrink-0 text-gold-ink"
+                        />
+                        {dayError}
+                      </p>
+                      <button
+                        type="button"
+                        className="btn-outline mt-4"
+                        onClick={() => loadDay(selectedDate, serviceId)}
+                      >
+                        <RiRefreshLine aria-hidden="true" className="h-4 w-4" />
+                        Try again
+                      </button>
+                    </div>
+                  )}
+
+                  {selectedService && !loadingDay && !dayError && day && (
+                    <>
+                      {availableSlots.length === 0 ? (
+                        <div className="mt-5" role="status">
+                          <p className="font-body text-sm text-ink-600">
+                            Every slot on this day is taken or too soon to book. Try another date —
+                            the clinic is open 24/7.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="mt-5 space-y-5">
+                          {groupSlots(day.slots).map((group) => (
+                            <div key={group.id}>
+                              <p className="flex items-baseline gap-2 font-ui text-xs font-semibold uppercase tracking-wider text-ink-500">
+                                {group.label}
+                                <span className="font-normal normal-case tracking-normal text-ink-400">
+                                  {group.range}
+                                </span>
+                              </p>
+
+                              <ul className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4 xl:grid-cols-6">
+                                {group.slots.map((slot) => {
+                                  const isSelected = slot.time === selectedTime;
+                                  return (
+                                    <li key={slot.time}>
+                                      <button
+                                        type="button"
+                                        disabled={!slot.available}
+                                        aria-pressed={isSelected}
+                                        title={
+                                          slot.available
+                                            ? undefined
+                                            : slot.unavailableReason === "booked"
+                                              ? "Already booked"
+                                              : slot.unavailableReason === "lead_time"
+                                                ? "Too soon — please pick a later slot"
+                                                : "Unavailable"
+                                        }
+                                        onClick={() => setSelectedTime(slot.time)}
+                                        className={cn(
+                                          "w-full rounded-lg border px-2 py-2.5 font-ui text-sm tabular-nums transition-all duration-200",
+                                          isSelected
+                                            ? "border-brand-700 bg-brand-700 text-white"
+                                            : slot.available
+                                              ? "border-ink-900/12 bg-white text-ink-800 hover:border-brand-700/50 hover:text-brand-700"
+                                              : "cursor-not-allowed border-ink-900/8 bg-cream-100 text-ink-300 line-through",
+                                        )}
+                                      >
+                                        {formatTimeLabel(slot.time)}
+                                      </button>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <p className="mt-5 border-t border-ink-900/8 pt-4 font-body text-xs leading-relaxed text-ink-500">
+                        Times are shown in the clinic&apos;s local time
+                        ({bookingConfig.timeZone.replace("_", " ")}). Slots struck through are
+                        already booked or too soon to arrange.
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
             )}
 
             <div className="mt-8 flex flex-wrap justify-between gap-3">
@@ -410,7 +518,10 @@ export function BookingWizard({
             <input type="hidden" name="time" value={selectedTime} />
 
             {/* Honeypot — hidden from humans, tempting for bots */}
-            <div aria-hidden="true" className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+            <div
+              aria-hidden="true"
+              className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
+            >
               <label htmlFor="company">Company (leave empty)</label>
               <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
             </div>
@@ -427,7 +538,9 @@ export function BookingWizard({
                   Requested time
                 </dt>
                 <dd className="mt-1 font-body text-sm text-ink-900">
-                  {selectedDate ? `${formatDateKey(selectedDate)} · ${formatTimeLabel(selectedTime)}` : "—"}
+                  {selectedDate
+                    ? `${formatDateKey(selectedDate)} · ${formatTimeLabel(selectedTime)}`
+                    : "—"}
                 </dd>
               </div>
             </dl>

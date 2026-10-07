@@ -5,13 +5,14 @@ import { BookingWizard } from "@/components/booking/BookingWizard";
 import { SectionHeading, ValueList } from "@/components/ui/primitives";
 import { bookingNotice } from "@/content/sections";
 import { clinic, scheduleSummary } from "@/content/site";
+import { getDayAvailability, getBookingCalendar } from "@/lib/services/availability";
 import { getPublicServices } from "@/lib/queries/site";
 import { toTelHref } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Request an appointment",
   description:
-    "Request a dental appointment at Dr. Bouamara Dental Clinic. Choose a treatment and an available time; the clinic confirms your appointment.",
+    "Request a dental appointment at Dr. Bouamara Dental Clinic. Choose a treatment, pick any date and time from the live calendar, and the clinic confirms your appointment.",
   alternates: { canonical: "/appointment" },
 };
 
@@ -25,9 +26,23 @@ export default async function AppointmentPage({
     getPublicServices(),
   ]);
 
-  const initialServiceId = requestedSlug
-    ? services.find((service) => service.slug === requestedSlug)?.id
+  const initialService = requestedSlug
+    ? services.find((service) => service.slug === requestedSlug)
     : undefined;
+  const initialServiceId = initialService?.id;
+
+  /**
+   * The whole booking horizon is computed on the server so the calendar is
+   * present in the first paint, and the times for the first bookable day are
+   * fetched too — a patient arriving from a treatment page never sees an empty
+   * step 2.
+   */
+  const calendar = await getBookingCalendar();
+
+  const initialDay =
+    initialService && calendar.firstBookableDate
+      ? await getDayAvailability(calendar.firstBookableDate, initialService.durationMinutes)
+      : null;
 
   return (
     <main>
@@ -45,14 +60,16 @@ export default async function AppointmentPage({
 
       <section className="section bg-cream-100">
         <div className="container-x grid gap-10 lg:grid-cols-[1.35fr_0.65fr] lg:items-start">
-          <BookingWizard services={services} initialServiceId={initialServiceId} />
+          <BookingWizard
+            services={services}
+            calendar={calendar}
+            initialServiceId={initialServiceId}
+            initialDay={initialDay}
+          />
 
           <aside className="space-y-6">
             <div className="card p-7">
-              <h2 className="flex items-center gap-2 font-heading text-xl text-ink-900">
-                <RiCalendarCheckLine aria-hidden="true" className="h-5 w-5 text-gold-ink" />
-                {bookingNotice.title}
-              </h2>
+              <h2 className="font-heading text-xl text-ink-900">How your request works</h2>
               <ul className="mt-4 space-y-4">
                 {[
                   {

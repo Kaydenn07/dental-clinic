@@ -13,14 +13,7 @@ import { isDemoAccessEnabled } from "@/lib/auth/session";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { fieldErrorsFrom, safeRedirectPath, staffSignInSchema } from "@/lib/validation/schemas";
-
-export interface AuthFormState {
-  ok: boolean;
-  message: string;
-  fieldErrors?: Record<string, string>;
-}
-
-export const initialAuthState: AuthFormState = { ok: false, message: "" };
+import type { AuthFormState } from "@/lib/forms/state";
 
 /** Email + password sign-in (Supabase Auth). */
 export async function signInAction(

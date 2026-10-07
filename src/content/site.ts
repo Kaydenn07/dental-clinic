@@ -12,6 +12,7 @@ import type { OpeningHours } from "@/types/content";
  *  Confirmed by the clinic:
  *    • name, email, both phone numbers, WhatsApp number
  *    • opening hours: 24 hours a day, 7 days a week
+ *    • city: Djelfa
  *    • Google Maps link
  *
  *  Still outstanding — see `PLACEHOLDER_FIELDS` at the bottom (also listed in
@@ -38,10 +39,10 @@ export const clinic = {
     email: "Drbouamara@gmail.com",
     /** WhatsApp is enabled on the secondary number only (digits, E.164). */
     whatsapp: "213671149592",
-    /** Town level — the street address has not been supplied yet. */
-    city: "Messaouda",
+    /** City confirmed by the clinic; the street address has not been supplied. */
+    city: "Djelfa",
     country: "Algeria",
-    addressLine: "Messaouda, Algeria",
+    addressLine: "Djelfa, Algeria",
     /** Street-level address: not provided. Nothing is rendered while null. */
     streetAddress: null as string | null,
     /** Public Google Maps link supplied by the clinic. */

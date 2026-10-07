@@ -4,12 +4,8 @@ import { useActionState } from "react";
 import { RiLoader4Line, RiLockLine, RiPlayCircleLine } from "react-icons/ri";
 
 import { Alert } from "@/components/ui/primitives";
-import {
-  initialAuthState,
-  signInAction,
-  startDemoSessionAction,
-  type AuthFormState,
-} from "@/lib/actions/auth";
+import { signInAction, startDemoSessionAction } from "@/lib/actions/auth";
+import { initialAuthState, type AuthFormState } from "@/lib/forms/state";
 import { cn } from "@/lib/utils";
 
 /**

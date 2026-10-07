@@ -97,7 +97,7 @@ export const aboutContent = {
    * CONFIRMED facts only (from the clinic): town and opening hours.
    */
   intro:
-    "Dr. Bouamara Dental Clinic is based in Messaouda, Algeria, and is open 24 hours a day, seven days a week.",
+    "Dr. Bouamara Dental Clinic is based in Djelfa, Algeria, and is open 24 hours a day, seven days a week.",
   /**
    * ⚠️ PLACEHOLDER narrative. Rewrite with the practice's real history and
    * approach, in the clinic's own words, before launch.
@@ -122,10 +122,13 @@ export const mediaAppearances: MediaAppearance[] = [
     program: "Nabd El Seha",
     topic: "جراحة الأسنان والرياضة",
     topicTranslation: "Dental surgery and sport",
-    /** ← Paste the official YouTube URL here to activate the button. */
-    videoUrl: null,
+    /**
+     * Official link supplied by the clinic. It opens on YouTube in a new tab —
+     * the video is never embedded on this site.
+     */
+    videoUrl: "https://youtu.be/08k-7ALuaQY",
     thumbnail: appearanceThumbnail,
-    isPlaceholder: true,
+    isPlaceholder: false,
   },
 ];
 

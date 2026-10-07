@@ -19,6 +19,31 @@ export interface DayAvailability {
   slots: TimeSlot[];
 }
 
+/** One day in the booking calendar (see `lib/services/availability.ts`). */
+export interface CalendarDay {
+  /** `YYYY-MM-DD` in clinic time. */
+  date: string;
+  /** Weekday index, 0 = Sunday. */
+  weekday: number;
+  /** The clinic is open on this weekday. */
+  open: boolean;
+  /** Inside the booking horizon and still selectable. */
+  bookable: boolean;
+}
+
+/** The whole horizon the booking wizard renders. */
+export interface BookingCalendar {
+  configured: boolean;
+  timeZone: string;
+  todayKey: string;
+  firstBookableDate: string | null;
+  lastDate: string | null;
+  days: CalendarDay[];
+  horizonDays: number;
+  slotStepMinutes: number;
+  minimumNoticeHours: number;
+}
+
 export interface BookingRecord {
   id: string;
   reference: string;
