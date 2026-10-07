@@ -89,3 +89,25 @@ export interface OpeningHours {
   close: string | null;
   closed: boolean;
 }
+
+/**
+ * A television / radio / press appearance.
+ *
+ * Only fields the clinic actually supplied are populated — no channel name,
+ * broadcast date or description is guessed.
+ */
+export interface MediaAppearance {
+  id: string;
+  /** Programme name, as provided. */
+  program: string;
+  /** Topic, in the wording provided (may be Arabic). */
+  topic: string;
+  /** English rendering of the topic, shown as supporting text. */
+  topicTranslation: string | null;
+  /** Official video link. `null` renders a clearly-marked pending state. */
+  videoUrl: string | null;
+  /** Optional still. See `src/content/media.ts`. */
+  thumbnail: string | null;
+  /** `true` while the video link has not been supplied. */
+  isPlaceholder: boolean;
+}

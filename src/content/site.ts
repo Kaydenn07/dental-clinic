@@ -2,45 +2,56 @@ import type { OpeningHours } from "@/types/content";
 
 /**
  * ============================================================================
- *  CLINIC IDENTITY & CONTACT
+ *  CLINIC IDENTITY & CONTACT  —  SINGLE SOURCE OF TRUTH
  * ============================================================================
- *  ⚠️  PLACEHOLDER CONTENT — nothing in this file has been provided by the
- *  clinic yet. Values are deliberately generic or use the reserved `example.com`
- *  domain so that nothing here can be mistaken for real clinic information.
+ *  Every phone number, email address, opening hour and social link used
+ *  anywhere on the site or in transactional emails is defined in this file.
+ *  Change a value here and it updates the header, footer, contact page,
+ *  booking engine, structured data and confirmation emails at once.
  *
- *  To go live, replace every field listed in `PLACEHOLDER_FIELDS` below and
- *  delete it from that list. The UI renders a "demo content" marker for any
- *  field still listed, so it is impossible to ship a placeholder by accident.
+ *  Confirmed by the clinic:
+ *    • name, email, both phone numbers, WhatsApp number
+ *    • opening hours: 24 hours a day, 7 days a week
+ *    • Google Maps link
+ *
+ *  Still outstanding — see `PLACEHOLDER_FIELDS` at the bottom (also listed in
+ *  the admin dashboard): street address, social profiles, practitioner
+ *  profiles, patient reviews, photography and the final legal wording.
  * ============================================================================
  */
 
 export const clinic = {
-  /** Display name used in copy and metadata. */
   name: "Dr. Bouamara Dental Clinic",
-  /** Short form for the header, footer and admin sidebar. */
-  shortName: "Dr. Bouamara",
-  /** Text used by the temporary <Logo /> wordmark. */
+  /** Used by the text wordmark when no logo file is configured. */
   wordmark: "Dr. Bouamara",
-  /** Temporary text mark. See `src/components/brand/Logo.tsx` — the final logo
-   *  only needs to be dropped in there and it updates everywhere. */
+  shortName: "Dr. Bouamara",
   monogram: "DB",
-  tagline: "Precision dentistry, delivered calmly.",
+  tagline: "Precision dentistry, day and night.",
 
   contact: {
-    /** International format, digits and spaces only, e.g. "+213 000 000 000". */
-    phone: "+00 000 000 000",
-    phoneDisplay: "+00 000 000 000",
-    /** Reserved domain — guaranteed not to be a real mailbox. */
-    email: "contact@example.com",
-    /** E.164 without "+", e.g. "213000000000". */
-    whatsapp: null as string | null,
-    addressLine: "Address to be confirmed",
-    city: null as string | null,
+    /** Primary number. */
+    phone: "+213 776 065 276",
+    phoneDisplay: "+213 776 065 276",
+    /** Secondary number, as printed on the clinic's own material. */
+    phoneSecondary: "+213 671 149 592",
+    phoneSecondaryDisplay: "+213 671 149 592",
+    email: "Drbouamara@gmail.com",
+    /** WhatsApp is enabled on the secondary number only (digits, E.164). */
+    whatsapp: "213671149592",
+    /** Town level — the street address has not been supplied yet. */
+    city: "Messaouda",
     country: "Algeria",
-    /** Google Maps embed URL (`https://www.google.com/maps/embed?...`). */
+    addressLine: "Messaouda, Algeria",
+    /** Street-level address: not provided. Nothing is rendered while null. */
+    streetAddress: null as string | null,
+    /** Public Google Maps link supplied by the clinic. */
+    mapLinkUrl: "https://maps.app.goo.gl/nb5PYvmst4qUFScg6",
+    /**
+     * Paste an embed URL (`https://www.google.com/maps/embed?pb=…`) here to show
+     * a live map. Left null: a short share link cannot be embedded, so the
+     * contact page shows a styled panel plus the "Open in Google Maps" button.
+     */
     mapEmbedUrl: null as string | null,
-    /** Public "open in maps" link. */
-    mapLinkUrl: null as string | null,
   },
 
   /** Social profiles — `null` hides the icon entirely. */
@@ -51,47 +62,47 @@ export const clinic = {
     youtube: null as string | null,
   },
 
-  /** Languages the clinic communicates in — update once confirmed. */
   languages: ["Français", "العربية", "English"],
 
-  /** Shown wherever the demo opening hours appear. */
-  scheduleNotice:
-    "Demo schedule — the clinic's real opening hours still need to be confirmed.",
-
-  /** Year the practice was founded — unknown, so no "since" claims are made. */
+  /** Year the practice was founded — not supplied, so no "since" claims. */
   foundedYear: null as number | null,
 
   brand: {
-    /** Colour tokens are defined in `tailwind.config.ts`. */
-    primary: "#0F5C55",
+    /** Mirrors tailwind.config.ts — deep navy + champagne gold. */
+    primary: "#0B2342",
     accent: "#C2A06B",
   },
 } as const;
 
 /**
- * Opening hours.
+ * Opening hours — confirmed: open 24 hours a day, seven days a week.
  *
- * ⚠️ DEMO SCHEDULE — these times are NOT the clinic's real hours. They exist so
- * the appointment engine can be exercised end to end (real slot generation,
- * conflict detection, closed-day handling). While `scheduleConfirmed` is
- * `false`, every page that shows these times renders a visible
- * "demo schedule" marker, and the admin dashboard lists it as outstanding.
+ * "00:00 → 24:00" is the canonical full-day representation and is exactly what
+ * the booking engine understands: `expandTimeRange("00:00", "24:00", 30)`
+ * yields every slot from 00:00 to 23:30, and the closing-time guard correctly
+ * allows a 23:30 slot for a 30-minute appointment. `closes_at` is a Postgres
+ * `time`, where "24:00" is valid.
  *
- * To go live: set the real hours here (or manage them from
- * Admin → Opening hours, which writes to the `opening_hours` table) and flip
- * `scheduleConfirmed` to `true`.
+ * These values are editable from the dashboard (Admin → Opening hours), which
+ * writes to the `opening_hours` table. This array is the fallback used when
+ * Supabase is not configured.
  */
-export const scheduleConfirmed = false;
+export const scheduleConfirmed = true;
+
+const ALL_DAY = { open: "00:00", close: "24:00", closed: false } as const;
 
 export const openingHours: OpeningHours[] = [
-  { weekday: 0, label: "Sunday", open: "09:00", close: "17:00", closed: false },
-  { weekday: 1, label: "Monday", open: "09:00", close: "17:00", closed: false },
-  { weekday: 2, label: "Tuesday", open: "09:00", close: "17:00", closed: false },
-  { weekday: 3, label: "Wednesday", open: "09:00", close: "17:00", closed: false },
-  { weekday: 4, label: "Thursday", open: "09:00", close: "17:00", closed: false },
-  { weekday: 5, label: "Friday", open: null, close: null, closed: true },
-  { weekday: 6, label: "Saturday", open: "09:00", close: "13:00", closed: false },
+  { weekday: 0, label: "Sunday", ...ALL_DAY },
+  { weekday: 1, label: "Monday", ...ALL_DAY },
+  { weekday: 2, label: "Tuesday", ...ALL_DAY },
+  { weekday: 3, label: "Wednesday", ...ALL_DAY },
+  { weekday: 4, label: "Thursday", ...ALL_DAY },
+  { weekday: 5, label: "Friday", ...ALL_DAY },
+  { weekday: 6, label: "Saturday", ...ALL_DAY },
 ];
+
+/** Short human summary used in the header strip, footer and metadata. */
+export const scheduleSummary = "Open 24 hours, 7 days a week";
 
 export const navigation = [
   { href: "/", label: "Home" },
@@ -102,21 +113,28 @@ export const navigation = [
 ] as const;
 
 /**
- * Machine-readable list of every field that still holds placeholder data.
- * Surfaced in the admin dashboard ("Site readiness" panel) and checked by
- * `src/lib/content-status.ts`.
+ * Persistent calendar closure (e.g. a holiday). `null` = open as normal.
+ * Kept here so a closure can be added without touching any component.
+ */
+export const clinicClosure: { from: string; to: string; reason: string } | null = null;
+
+/**
+ * Machine-readable list of everything still awaiting real clinic information.
+ * Surfaced in the admin dashboard ("Site readiness" and "Settings → Content
+ * still needed") so unfinished content can never ship unnoticed.
+ *
+ * Remove an entry once the corresponding content is real.
  */
 export const PLACEHOLDER_FIELDS = [
-  "clinic.contact.phone",
-  "clinic.contact.email",
-  "clinic.contact.addressLine",
-  "clinic.contact.city",
-  "clinic.contact.mapEmbedUrl",
+  "clinic.contact.streetAddress",
   "clinic.social",
-  "openingHours",
+  "media.brand.logo",
+  "media.doctor.portrait",
+  "media.facility",
+  "media.results",
+  "media.appearances.thumbnail",
   "team",
   "testimonials",
-  "gallery",
   "services.images",
   "legal.policyPages",
 ] as const;

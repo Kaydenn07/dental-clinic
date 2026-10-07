@@ -1,4 +1,5 @@
-import type { FaqItem, TeamMember, Testimonial, ValueItem } from "@/types/content";
+import type { FaqItem, MediaAppearance, Testimonial, ValueItem } from "@/types/content";
+import { appearanceThumbnail } from "@/content/media";
 
 /**
  * ============================================================================
@@ -70,56 +71,63 @@ export const values: ValueItem[] = [
 ];
 
 /**
- * Practitioner profiles.
+ * The practitioner.
  *
- * ⚠️ Only the practice name is known so far. Roles, biographies and
- * qualifications must come from the clinic and be verified before publishing —
- * inventing credentials on a medical site is unacceptable (and in most
- * jurisdictions it is unlawful advertising). Until then each card renders as a
- * clearly-labelled placeholder slot.
+ * Only the name is confirmed. Qualifications, special interests and a biography
+ * must be supplied and approved by the clinic — inventing credentials on a
+ * medical site is unacceptable. Until then the About page shows the portrait
+ * with a clearly-marked "credentials pending" note.
  */
-export const teamMembers: TeamMember[] = [
-  {
-    id: "team-owner",
-    name: "Dr. Bouamara",
-    role: "Dentist — practice owner",
-    credentials: null,
-    bio: null,
-    image: null,
-    isPlaceholder: true,
-  },
-  {
-    id: "team-slot-2",
-    name: "Team member slot",
-    role: "To be confirmed",
-    credentials: null,
-    bio: null,
-    image: null,
-    isPlaceholder: true,
-  },
-  {
-    id: "team-slot-3",
-    name: "Team member slot",
-    role: "To be confirmed",
-    credentials: null,
-    bio: null,
-    image: null,
-    isPlaceholder: true,
-  },
-];
+export const doctorProfile = {
+  id: "dr-bouamara",
+  name: "Dr. Bouamara",
+  role: "Dentist",
+  /** e.g. "DDS, MSc Implantology" — must come from the clinic. */
+  credentials: null as string | null,
+  /** A short biography in the clinic's own words. */
+  bio: null as string | null,
+  isPlaceholder: true,
+};
+
 
 export const aboutContent = {
   eyebrow: "About the practice",
   title: "A practice built around clarity and precision",
-  /** Neutral placeholder narrative — rewrite with the clinic's real story. */
-  paragraphs: [
-    "Dr. Bouamara Dental Clinic is presented here as a focused general dental practice. This introductory paragraph is placeholder copy: replace it with the practice's real history, approach and philosophy.",
-    "The sections below are deliberately free of the awards, statistics and accreditation badges that template sites often invent. Add verified details only — they are far more convincing than invented numbers.",
-    "Practitioner biographies are left as clearly marked placeholders until Dr. Bouamara supplies the exact wording, qualifications and special interests to publish.",
+  /**
+   * CONFIRMED facts only (from the clinic): town and opening hours.
+   */
+  intro:
+    "Dr. Bouamara Dental Clinic is based in Messaouda, Algeria, and is open 24 hours a day, seven days a week.",
+  /**
+   * ⚠️ PLACEHOLDER narrative. Rewrite with the practice's real history and
+   * approach, in the clinic's own words, before launch.
+   */
+  placeholderParagraphs: [
+    "This paragraph is placeholder copy. Replace it with the practice's real history, its approach to patient care and anything that makes it distinctive.",
+    "The site deliberately avoids the invented awards, statistics and accreditation badges that template websites usually carry. Add verified details only — they are far more convincing than made-up numbers.",
   ],
-  /** Set once the clinic confirms its own wording. */
   isPlaceholder: true,
 };
+
+/**
+ * Television appearance.
+ *
+ * “Nabd El Seha” — topic: “جراحة الأسنان والرياضة” (dental surgery and sport).
+ * The programme name and topic are exactly as supplied. No channel, broadcast
+ * date or description is asserted, because none was provided.
+ */
+export const mediaAppearances: MediaAppearance[] = [
+  {
+    id: "nabd-el-seha",
+    program: "Nabd El Seha",
+    topic: "جراحة الأسنان والرياضة",
+    topicTranslation: "Dental surgery and sport",
+    /** ← Paste the official YouTube URL here to activate the button. */
+    videoUrl: null,
+    thumbnail: appearanceThumbnail,
+    isPlaceholder: true,
+  },
+];
 
 export const facilityContent = {
   eyebrow: "The clinic",
@@ -127,19 +135,6 @@ export const facilityContent = {
   body: "A short description of the treatment rooms, sterilisation area and waiting space belongs here, along with real photographs of the practice.",
   isPlaceholder: true,
 };
-
-/**
- * Gallery items. `image` stays `null` until the clinic supplies photographs
- * with the right to publish them (and patient consent where applicable).
- */
-export const galleryItems = [
-  { id: "gal-reception", title: "Reception", caption: "Photo pending", image: null },
-  { id: "gal-room-1", title: "Treatment room", caption: "Photo pending", image: null },
-  { id: "gal-sterilisation", title: "Sterilisation area", caption: "Photo pending", image: null },
-  { id: "gal-equipment", title: "Equipment", caption: "Photo pending", image: null },
-  { id: "gal-waiting", title: "Waiting area", caption: "Photo pending", image: null },
-  { id: "gal-scan", title: "Digital scanning", caption: "Photo pending", image: null },
-] as const;
 
 /**
  * Testimonials are intentionally empty.

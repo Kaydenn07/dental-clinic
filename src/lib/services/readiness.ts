@@ -35,7 +35,8 @@ export async function getReadinessReport(): Promise<ReadinessReport> {
   const imagesPending = services.every((service) => service.image === null);
   const phonePending = clinic.contact.phone.length === 0;
   const emailPending = clinic.contact.email.endsWith("example.com");
-  const addressPending = clinic.contact.addressLine.toLowerCase().includes("to be confirmed");
+  // Town is confirmed; a street address is not — tracked separately.
+  const addressPending = !clinic.contact.streetAddress;
 
   const items: ReadinessItem[] = [
     {
@@ -67,19 +68,21 @@ export async function getReadinessReport(): Promise<ReadinessReport> {
       id: "hours",
       label: "Opening hours confirmed",
       detail: scheduleConfirmed
-        ? "The clinic's real opening hours are in use."
+        ? "Open 24 hours, seven days a week — editable from Opening hours."
         : "A demo schedule is in use and is labelled as such across the site.",
       state: scheduleConfirmed ? "done" : "pending",
-      action: { label: "Opening hours" },
+      action: { label: "Opening hours", href: "/admin/hours" },
     },
     {
       id: "contact",
       label: "Real contact details published",
       detail:
-        phonePending || emailPending || addressPending
-          ? "Phone, email and/or address are still placeholders."
-          : "Contact details are set.",
-      state: phonePending || emailPending || addressPending ? "pending" : "done",
+        phonePending || emailPending
+          ? "Phone and/or email are still placeholders."
+          : addressPending
+            ? `Two phone numbers, WhatsApp and ${clinic.contact.email} are live. The street address has not been supplied, so only "${clinic.contact.addressLine}" is shown.`
+            : "Phone, email and street address are all set.",
+      state: phonePending || emailPending ? "pending" : "done",
     },
     {
       id: "media",

@@ -8,6 +8,16 @@ export function toTelHref(phone: string): string {
   return `tel:${phone.replace(/[^\d+]/g, "")}`;
 }
 
+/**
+ * Wa.me link builder. Accepts a number with or without formatting:
+ * `"+213 671 149 592"` and `"213671149592"` both work.
+ */
+export function toWhatsAppHref(phone: string, message?: string): string {
+  const digits = phone.replace(/\D/g, "");
+  const query = message ? `?text=${encodeURIComponent(message)}` : "";
+  return `https://wa.me/${digits}${query}`;
+}
+
 export function truncate(value: string, max = 120): string {
   if (value.length <= max) return value;
   return `${value.slice(0, max - 1).trimEnd()}…`;

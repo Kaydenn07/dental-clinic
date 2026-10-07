@@ -1,10 +1,11 @@
 import "server-only";
 
-import { openingHours as contentHours, PLACEHOLDER_FIELDS } from "@/content/site";
+import { PLACEHOLDER_FIELDS } from "@/content/site";
 import { services as contentServices } from "@/content/services";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { OpeningHours, Service, ServiceCategoryId } from "@/types/content";
+import { getOpeningHours as resolveOpeningHours, summariseHours } from "@/lib/services/hours";
+import type { Service, ServiceCategoryId } from "@/types/content";
 
 /**
  * Read layer for public site content.
@@ -15,34 +16,18 @@ import type { OpeningHours, Service, ServiceCategoryId } from "@/types/content";
  * the dashboard starts managing it — with no changes in the components.
  */
 
-function normaliseTime(value: string | null): string | null {
-  if (!value) return null;
-  // Postgres `time` arrives as "09:00:00".
-  return value.slice(0, 5);
+/**
+ * Opening hours are resolved in exactly one place — `src/lib/services/hours.ts`
+ * — so the booking engine, the header, the footer and the dashboard editor can
+ * never disagree. This is a thin, single-source re-export.
+ */
+export async function getOpeningHours() {
+  return resolveOpeningHours();
 }
 
-export async function getOpeningHours(): Promise<OpeningHours[]> {
-  if (!isSupabaseConfigured) return contentHours;
-
-  try {
-    const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("opening_hours")
-      .select("weekday, label, opens_at, closes_at, closed")
-      .order("weekday", { ascending: true });
-
-    if (error || !data || data.length === 0) return contentHours;
-
-    return data.map((row) => ({
-      weekday: row.weekday,
-      label: row.label,
-      open: normaliseTime(row.opens_at),
-      close: normaliseTime(row.closes_at),
-      closed: row.closed,
-    }));
-  } catch {
-    return contentHours;
-  }
+/** Human summary of the resolved schedule, e.g. "Open 24 hours, 7 days a week". */
+export async function getScheduleSummary(): Promise<string> {
+  return summariseHours(await resolveOpeningHours());
 }
 
 function rowToService(row: {

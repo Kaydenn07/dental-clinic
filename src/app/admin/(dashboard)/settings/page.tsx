@@ -1,9 +1,10 @@
-import { RiExternalLinkLine } from "react-icons/ri";
+import { RiArrowRightLine, RiExternalLinkLine } from "react-icons/ri";
 
 import { Alert, Badge, PlaceholderBadge } from "@/components/ui/primitives";
 import { clinic, PLACEHOLDER_FIELDS, scheduleConfirmed } from "@/content/site";
 import { isDemoAccessEnabled } from "@/lib/auth/session";
 import { appUrl, emailEnv, isEmailConfigured, isSupabaseAdminConfigured, isSupabaseConfigured, supabaseEnv } from "@/lib/env";
+import Link from "next/link";
 
 export const metadata = { title: "Settings & setup" };
 
@@ -155,8 +156,10 @@ export default function AdminSettingsPage() {
           Content still needed from the clinic
         </h2>
         <p className="mt-2 font-body text-sm text-ink-600">
-          These are tracked in <code className="font-mono text-xs">src/content/site.ts</code> and
-          marked on the public site so nothing ships by accident.
+          These are tracked in <code className="font-mono text-xs">src/content/site.ts</code> and in{" "}
+          <code className="font-mono text-xs">src/content/media.ts</code>, and are labelled on the
+          public site so nothing ships by accident. Contact details and 24/7 opening hours are
+          already live.
         </p>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -178,8 +181,15 @@ export default function AdminSettingsPage() {
           <div className="rounded-xl border border-ink-900/10 bg-cream-50 p-4">
             <p className="font-ui text-xs uppercase tracking-wider text-ink-500">Opening hours</p>
             <p className="mt-1 font-body text-sm text-ink-900">
-              {scheduleConfirmed ? "Confirmed" : "Demo schedule"}
+              {scheduleConfirmed ? "24 hours, every day" : "Demo schedule"}
             </p>
+            <Link
+              href="/admin/hours"
+              className="mt-2 inline-flex items-center gap-1.5 font-ui text-xs font-medium text-brand-700 hover:text-brand-800"
+            >
+              Edit hours
+              <RiArrowRightLine aria-hidden="true" className="h-3.5 w-3.5" />
+            </Link>
           </div>
           <div className="rounded-xl border border-ink-900/10 bg-cream-50 p-4">
             <p className="font-ui text-xs uppercase tracking-wider text-ink-500">Site URL</p>
@@ -187,8 +197,8 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        <div className="mt-6">
-          <PlaceholderBadge label="Replace before launch" />
+        <div className="mt-6 flex flex-wrap gap-3">
+          <PlaceholderBadge label="Add these before launch" />
         </div>
       </section>
 
