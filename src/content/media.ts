@@ -111,32 +111,31 @@ export const doctor: {
 };
 
 /**
- * ── Facility gallery ────────────────────────────────────────────────────────
- * Suggested files: public/media/facility/reception.jpg, treatment-room.jpg,
- * sterilisation.jpg, equipment.jpg, waiting-area.jpg, scanning.jpg
+ * ── Gallery photographs ─────────────────────────────────────────────────────
+ * One slot. The clinic asked for the room categories to be withdrawn.
+ * Suggested file: public/media/appearances/nabd-el-seha.jpg
  */
-const FACILITY_SLOTS: { id: string; title: string }[] = [
-  { id: "gal-reception", title: "Reception" },
-  { id: "gal-room-1", title: "Treatment room" },
-  { id: "gal-sterilisation", title: "Sterilisation area" },
-  { id: "gal-equipment", title: "Equipment" },
-  { id: "gal-waiting", title: "Waiting area" },
-  { id: "gal-scan", title: "Digital scanning" },
+const GALLERY_SLOTS: { id: string; title: string }[] = [
+  { id: "tv-interview", title: "Dr. Bouamara on Television" },
 ];
 
-export const facility: FacilityPhoto[] = FACILITY_SLOTS.map((slot) => {
-  const photo = generatedMedia.facility.find((item) => item.id === slot.id);
-  const illustrative = photo?.illustrative ?? false;
+/**
+ * The room categories — treatment room, equipment, reception, sterilisation,
+ * waiting area and digital scanning — were withdrawn at the clinic's request,
+ * so the gallery carries one photograph: Dr. Bouamara during her television
+ * interview. It appears once the picture is supplied (see README →
+ * "Adding the clinic's photographs"); until then the frame stays labelled.
+ */
+export const galleryPhotos: FacilityPhoto[] = GALLERY_SLOTS.map((slot) => {
+  const src = generatedMedia.appearanceStill;
 
   return {
     ...slot,
-    src: photo?.src ?? null,
-    illustrative,
-    caption: !photo
-      ? "Photo pending"
-      : illustrative
-        ? "Illustrative view — a real photograph is on its way."
-        : "Photographed at the clinic.",
+    src,
+    illustrative: false,
+    caption: src
+      ? "Dr. Bouamara during her television interview."
+      : "Photograph pending",
   };
 });
 
@@ -332,4 +331,8 @@ export const appearanceThumbnail: string | null = generatedMedia.appearanceStill
 
 /** `true` when at least one real photograph is wired up. */
 export const hasAnyMedia = (): boolean =>
-  Boolean(brand.logoLight || doctor.portrait.src || facility.some((photo) => photo.src));
+  Boolean(
+    brand.logoLight ||
+      doctor.portrait.src ||
+      galleryPhotos.some((photo) => photo.src),
+  );

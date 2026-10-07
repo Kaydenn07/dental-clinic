@@ -35,8 +35,17 @@ const OUT_DIR = join(ROOT, "public", "media");
 const INPUT = {
   /** The logo sheet: lockups, the mark, and the navy app icon. */
   brand: ["brand/logo-sheet.*", "brand/logo.*", "logo.*"],
-  /** The radio-studio photograph containing Dr. Messaouda Bouamara. */
-  radio: ["doctor/radio-station.*", "radio-station.*", "doctor.*"],
+  /**
+   * Portrait of Dr. Messaouda Bouamara for the About page. A file named
+   * `portrait.*` (a purpose-shot portrait) wins over the radio-studio group
+   * photograph, which is cropped to the person on the right.
+   */
+  radio: [
+    "doctor/portrait.*",
+    "doctor/radio-station.*",
+    "radio-station.*",
+    "doctor.*",
+  ],
   /** A studio still from the television appearance. */
   tv: ["appearances/nabd-el-seha.*", "tv.*", "appearance.*"],
   /** Before/after case sheets, in the order they should appear on the site. */
@@ -66,6 +75,11 @@ const INPUT = {
  */
 const CROP = {
   radioDoctor: { left: 0.485, top: 0.02, width: 0.5, height: 0.72 },
+  /**
+   * Purpose-shot portrait (`doctor/portrait.*`): centred, full height. Adjust
+   * after looking at the first run — the script prints the output path.
+   */
+  portrait: { left: 0.22, top: 0, width: 0.56, height: 1 },
   /**
    * Per-case overrides. Anything not listed here is trimmed automatically by
    * `trimPromoBand()`.
@@ -286,7 +300,15 @@ async function buildDoctorPortrait() {
   const out = join(OUT_DIR, "doctor", "dr-bouamara.jpg");
   ensureDir(join(OUT_DIR, "doctor"));
 
-  const region = await cropRegion(source, CROP.radioDoctor);
+  /**
+   * The group photograph needs the box that isolates the person on the right;
+   * a purpose-shot portrait is already framed, so only a gentle centre crop is
+   * applied to reach 4:5.
+   */
+  const isGroupPhoto = /radio-station/i.test(basename(source));
+  const box = isGroupPhoto ? CROP.radioDoctor : CROP.portrait;
+
+  const region = await cropRegion(source, box);
 
   await sharp(source)
     .extract(region)

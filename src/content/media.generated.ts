@@ -65,12 +65,9 @@ export const generatedMedia: GeneratedMedia = {
     { id: "case-06", composite: "/media/results/case-06.jpg" },
   ],
 
-  facility: [
-    // Illustrative interiors, supplied while the clinic's own photographs are
-    // still being taken. They are labelled "Illustrative view" on the site.
-    { id: "gal-reception", src: "/media/facility/reception.jpg", illustrative: true },
-    { id: "gal-room-1", src: "/media/facility/treatment-room.jpg", illustrative: true },
-    { id: "gal-sterilisation", src: "/media/facility/sterilisation.jpg", illustrative: true },
-    { id: "gal-waiting", src: "/media/facility/waiting-area.jpg", illustrative: true },
-  ],
+  /**
+   * Room photographs are not used: those gallery categories were withdrawn at
+   * the clinic's request. Kept as the target for `media-source/facility/`.
+   */
+  facility: [],
 };

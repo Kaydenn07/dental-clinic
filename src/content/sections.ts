@@ -137,9 +137,9 @@ export const mediaAppearances: MediaAppearance[] = [
 ];
 
 export const facilityContent = {
-  eyebrow: "The clinic",
-  title: "Treatment rooms and environment",
-  body: "The gallery shows the treatment room, the sterilisation area and the space where patients wait. Until the clinic's own photographs arrive, the interiors pictured there are labelled as illustrative views, and they are replaced the moment real pictures are available.",
+  eyebrow: "In the media",
+  title: "Dr. Bouamara on television",
+  body: "Dr. Bouamara speaking about dentistry and sport on Radio El Bahdia's television programme, alongside treatment results published with the patient's written consent.",
   isPlaceholder: false,
 };
 
