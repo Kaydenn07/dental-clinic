@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { CtaBand } from "@/components/home/CtaBand";
 import {
@@ -123,11 +124,16 @@ export default function AboutPage() {
             </div>
 
             <div className="rounded-card border border-gold-ink/25 bg-gold-ink/[0.04] p-7">
-              <h3 className="font-heading text-xl text-ink-900">Equipment &amp; environment</h3>
+              <h3 className="font-heading text-xl text-ink-900">Treatment rooms &amp; environment</h3>
               <p className="mt-3 font-body text-sm leading-relaxed text-ink-600">
                 {facilityContent.body}
               </p>
-              <PlaceholderBadge className="mt-4" label="Facility details pending" />
+              <Link
+                href="/gallery"
+                className="mt-4 inline-flex font-ui text-xs font-semibold uppercase tracking-eyebrow text-gold-ink transition hover:text-ink-900"
+              >
+                See the gallery →
+              </Link>
             </div>
           </div>
         </div>

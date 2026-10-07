@@ -9,12 +9,13 @@ import { facilityContent } from "@/content/sections";
 export const metadata: Metadata = {
   title: "Gallery",
   description:
-    "Photographs and treatment results from Dr. Bouamara Dental Clinic. Clinic photography is still being prepared; this page shows where it will appear.",
+    "Treatment results published with the patient's consent, and a look inside Dr. Bouamara Dental Clinic. Illustrative views are marked as such.",
   alternates: { canonical: "/gallery" },
 };
 
 export default function GalleryPage() {
   const photosPending = facility.every((photo) => !photo.src);
+  const illustrativeCount = facility.filter((photo) => photo.illustrative).length;
 
   return (
     <main>
@@ -36,9 +37,22 @@ export default function GalleryPage() {
             <div className="mb-10 flex flex-wrap items-center gap-3">
               <PlaceholderBadge label="Photography pending" />
               <p className="max-w-2xl font-body text-sm text-ink-600">
-                Real photographs of the practice will replace these frames. No stock imagery is
-                published anywhere on this site — unlicensed dental stock photos are both a
-                licensing risk and misleading to patients.
+                Real photographs of the practice will replace these frames. Stock dental imagery is
+                not published as if it showed this clinic.
+              </p>
+            </div>
+          )}
+
+          {!photosPending && illustrativeCount > 0 && (
+            <div className="mb-10 flex flex-wrap items-center gap-3">
+              <PlaceholderBadge label={`${illustrativeCount} illustrative views`} />
+              <p className="max-w-2xl font-body text-sm text-ink-600">
+                The frames marked <span className="font-ui text-xs uppercase tracking-eyebrow">
+                  Illustrative view
+                </span>{" "}
+                are stand-ins that hold the place of the clinic&rsquo;s own photographs — they do not
+                show this practice. The treatment results further down the page are the
+                clinic&rsquo;s own, published with the patient&rsquo;s consent.
               </p>
             </div>
           )}
@@ -49,7 +63,11 @@ export default function GalleryPage() {
                 <figure className="overflow-hidden rounded-card border border-ink-900/10 bg-white shadow-soft">
                   <MediaPlaceholder
                     src={photo.src}
-                    alt={`${photo.title} at Dr. Bouamara Dental Clinic`}
+                    alt={
+                      photo.illustrative
+                        ? `Illustrative view of a ${photo.title.toLowerCase()}`
+                        : `${photo.title} at Dr. Bouamara Dental Clinic`
+                    }
                     label={photo.title}
                     caption={photo.caption}
                     className="aspect-4/3 w-full"
@@ -58,7 +76,11 @@ export default function GalleryPage() {
                   <figcaption className="flex items-center justify-between gap-4 px-5 py-4">
                     <span className="font-ui text-sm text-ink-800">{photo.title}</span>
                     <span className="font-ui text-xs text-ink-400">
-                      {photo.src ? "Clinic photograph" : "Photo pending"}
+                      {!photo.src
+                        ? "Photo pending"
+                        : photo.illustrative
+                          ? "Illustrative view"
+                          : "Clinic photograph"}
                     </span>
                   </figcaption>
                 </figure>

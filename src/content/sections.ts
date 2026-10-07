@@ -138,9 +138,9 @@ export const mediaAppearances: MediaAppearance[] = [
 
 export const facilityContent = {
   eyebrow: "The clinic",
-  title: "Equipment and environment",
-  body: "A short description of the treatment rooms, sterilisation area and waiting space belongs here, along with real photographs of the practice.",
-  isPlaceholder: true,
+  title: "Treatment rooms and environment",
+  body: "The gallery shows the treatment room, the sterilisation area and the space where patients wait. Until the clinic's own photographs arrive, the interiors pictured there are labelled as illustrative views, and they are replaced the moment real pictures are available.",
+  isPlaceholder: false,
 };
 
 /**

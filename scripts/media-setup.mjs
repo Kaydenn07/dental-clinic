@@ -200,6 +200,23 @@ async function cropRegion(file, box) {
 
 const results = [];
 
+/** Ready-to-paste entries for src/content/media.generated.ts. */
+const manifest = { results: [], facility: [], unassigned: [] };
+
+/**
+ * Gallery slot for each suggested facility file name. Files whose name is not
+ * listed here are still processed and reported, but the script cannot guess
+ * which card they belong to.
+ */
+const FACILITY_SLOTS = {
+  reception: "gal-reception",
+  "treatment-room": "gal-room-1",
+  sterilisation: "gal-sterilisation",
+  equipment: "gal-equipment",
+  "waiting-area": "gal-waiting",
+  scanning: "gal-scan",
+};
+
 function report(label, path, note = "") {
   results.push({ label, path, note });
 }
@@ -282,6 +299,7 @@ async function buildResults() {
       out,
       trimmed ? "promotional band trimmed" : "no promotional band found",
     );
+    manifest.results.push({ id: `case-${id}`, src: `/media/results/case-${id}.jpg` });
   }
 
   if (index === 0) return;
@@ -299,12 +317,68 @@ async function buildFacility() {
   ensureDir(join(OUT_DIR, "facility"));
 
   for (const file of files) {
-    const out = join(OUT_DIR, "facility", `${basename(file, extname(file))}.jpg`);
+    const name = basename(file, extname(file));
+    const out = join(OUT_DIR, "facility", `${name}.jpg`);
     await sharp(join(dir, file))
       .resize({ width: 1600, withoutEnlargement: true })
       .jpeg({ quality: 86, mozjpeg: true })
       .toFile(out);
-    report("Facility photo", out);
+
+    const slot = FACILITY_SLOTS[name];
+    report("Facility photo", out, slot ? `gallery slot ${slot}` : "no matching gallery slot");
+
+    if (slot) {
+      manifest.facility.push({
+        id: slot,
+        src: `/media/facility/${name}.jpg`,
+        illustrative: false,
+      });
+    } else {
+      manifest.unassigned.push(`/media/facility/${name}.jpg`);
+    }
+  }
+}
+
+/** Prints the entries to paste into src/content/media.generated.ts. */
+function printManifestSnippet() {
+  const blocks = [];
+
+  if (manifest.results.length > 0) {
+    blocks.push(
+      "  results: [\n" +
+        manifest.results
+          .map((item) => `    { id: "${item.id}", composite: "${item.src}" },`)
+          .join("\n") +
+        "\n  ],",
+    );
+  }
+
+  if (manifest.facility.length > 0) {
+    blocks.push(
+      "  facility: [\n" +
+        manifest.facility
+          .map(
+            (item) =>
+              `    { id: "${item.id}", src: "${item.src}", illustrative: false },`,
+          )
+          .join("\n") +
+        "\n  ],",
+    );
+  }
+
+  if (blocks.length === 0) return;
+
+  console.log(
+    "\nPaste into src/content/media.generated.ts (replacing the same keys):\n",
+  );
+  console.log(blocks.join("\n\n"));
+
+  if (manifest.unassigned.length > 0) {
+    console.log(
+      "\nThese files have no matching gallery slot — add a slot in " +
+        "src/content/media.ts or rename the file:\n" +
+        manifest.unassigned.map((path) => `  ${path}`).join("\n"),
+    );
   }
 }
 
@@ -339,10 +413,9 @@ async function main() {
     console.log(`  ✓ ${item.label.padEnd(20)} ${item.path.replace(ROOT + "/", "")}${item.note ? `  (${item.note})` : ""}`);
   }
 
-  console.log(
-    "\nNext: set the matching paths in src/content/media.ts if they differ, " +
-      "then run `npm run build`.\n",
-  );
+  printManifestSnippet();
+
+  console.log("\nThen run `npm run check` and `npm run build`.\n");
 }
 
 main().catch((error) => {

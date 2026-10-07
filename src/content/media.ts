@@ -37,6 +37,12 @@ export interface FacilityPhoto {
   title: string;
   caption: string;
   src: string | null;
+  /**
+   * `true` when the picture is a stand-in rather than a photograph of this
+   * practice. The UI says so; never set it to `false` for imagery the clinic
+   * did not send.
+   */
+  illustrative: boolean;
 }
 
 export interface ResultCase {
@@ -116,13 +122,21 @@ const FACILITY_SLOTS: { id: string; title: string }[] = [
   { id: "gal-scan", title: "Digital scanning" },
 ];
 
-export const facility: FacilityPhoto[] = FACILITY_SLOTS.map((slot) => ({
-  ...slot,
-  caption: generatedMedia.facility.some((photo) => photo.id === slot.id)
-    ? "Photographed at the clinic."
-    : "Photo pending",
-  src: generatedMedia.facility.find((photo) => photo.id === slot.id)?.src ?? null,
-}));
+export const facility: FacilityPhoto[] = FACILITY_SLOTS.map((slot) => {
+  const photo = generatedMedia.facility.find((item) => item.id === slot.id);
+  const illustrative = photo?.illustrative ?? false;
+
+  return {
+    ...slot,
+    src: photo?.src ?? null,
+    illustrative,
+    caption: !photo
+      ? "Photo pending"
+      : illustrative
+        ? "Illustrative view — a real photograph is on its way."
+        : "Photographed at the clinic.",
+  };
+});
 
 /**
  * ── Treatment results ───────────────────────────────────────────────────────
