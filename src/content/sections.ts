@@ -168,7 +168,8 @@ export const faqs: FaqItem[] = [
     id: "faq-urgent",
     question: "I am in pain — how quickly can I be seen?",
     answer:
-      "Placeholder: add the clinic's real procedure for urgent cases, including the phone number to call and the hours it is answered.",
+      "The clinic is open 24 hours a day, seven days a week. For urgent problems, call +213 776 065 276 or +213 671 149 592 rather than using the booking form.",
+    // The clinic's specific triage procedure still has to be supplied.
     isPlaceholder: true,
   },
   {
