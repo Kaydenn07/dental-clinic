@@ -24,7 +24,9 @@ export interface GeneratedMedia {
   } | null;
   /** Portrait of Dr. Messaouda Bouamara for the About page. */
   doctorPortrait: string | null;
-  /** Studio still from the television appearance. */
+  /** The radio-station photograph, cropped — used in the practitioner block. */
+  doctorPortraitSecondary: string | null;
+  /** Still from the television appearance, shown in the gallery. */
   appearanceStill: string | null;
   /** Before/after case sheets, in display order. */
   results: { id: string; composite: string }[];
@@ -49,7 +51,10 @@ export const generatedMedia: GeneratedMedia = {
 
   doctorPortrait: "/media/doctor/dr-bouamara.jpg",
 
-  appearanceStill: null,
+  doctorPortraitSecondary: "/media/doctor/dr-bouamara-radio.jpg",
+
+  /** Dr. Bouamara during her television interview — the gallery frame. */
+  appearanceStill: "/media/appearances/nabd-el-seha.jpg",
 
   /**
    * The clinic's own before/after sheets. The printed promotional band (and,

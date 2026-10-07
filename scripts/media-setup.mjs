@@ -46,7 +46,9 @@ const INPUT = {
     "radio-station.*",
     "doctor.*",
   ],
-  /** A studio still from the television appearance. */
+  /** The radio-station group photograph, cropped to Dr. Bouamara. */
+  radioStation: ["doctor/radio-station.*", "radio-station.*"],
+  /** A still from the television appearance. */
   tv: ["appearances/nabd-el-seha.*", "tv.*", "appearance.*"],
   /** Before/after case sheets, in the order they should appear on the site. */
   results: [
@@ -271,7 +273,13 @@ async function cropRegion(file, box) {
 const results = [];
 
 /** Ready-to-paste entries for src/content/media.generated.ts. */
-const manifest = { results: [], facility: [], unassigned: [], brand: null };
+const manifest = {
+  results: [],
+  facility: [],
+  unassigned: [],
+  brand: null,
+  doctorSecondary: null,
+};
 
 /**
  * Gallery slot for each suggested facility file name. Files whose name is not
@@ -320,6 +328,31 @@ async function buildDoctorPortrait() {
     .toFile(out);
 
   report("Doctor portrait", out, `cropped from ${basename(source)} (framing only)`);
+}
+
+/**
+ * The practitioner block further down the About page uses the radio-station
+ * photograph (the clinic confirmed Dr. Bouamara is the person on the right).
+ * It is a separate output so the main portrait can come from a different file.
+ */
+async function buildDoctorSecondary() {
+  const source = firstMatch(INPUT.radioStation);
+  if (!source) return;
+
+  const out = join(OUT_DIR, "doctor", "dr-bouamara-radio.jpg");
+  ensureDir(join(OUT_DIR, "doctor"));
+
+  await sharp(source)
+    .extract(await cropRegion(source, CROP.radioDoctor))
+    .resize(DOCTOR_PORTRAIT.width, DOCTOR_PORTRAIT.height, {
+      fit: "cover",
+      position: "top",
+    })
+    .jpeg({ quality: 88, mozjpeg: true })
+    .toFile(out);
+
+  report("Practitioner block", out, `cropped from ${basename(source)} (framing only)`);
+  manifest.doctorSecondary = "/media/doctor/dr-bouamara-radio.jpg";
 }
 
 async function buildAppearanceStill() {
@@ -437,6 +470,12 @@ function printManifestSnippet() {
           .map(([key, value]) => `    ${key}: "${value}",`)
           .join("\n") +
         "\n  },",
+    );
+  }
+
+  if (manifest.doctorSecondary) {
+    blocks.push(
+      `  doctorPortraitSecondary: "${manifest.doctorSecondary}",`,
     );
   }
 
@@ -633,6 +672,7 @@ async function main() {
 
   await buildBrand();
   await buildDoctorPortrait();
+  await buildDoctorSecondary();
   await buildAppearanceStill();
   await buildResults();
   await buildFacility();

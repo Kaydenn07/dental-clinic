@@ -100,13 +100,13 @@ export const doctor: {
   },
   secondary: {
     /**
-     * The practitioner block further down the About page. Until a second
-     * photograph of Dr. Bouamara exists, it shows the practice rather than an
-     * empty frame — never a stand-in presented as her.
+     * The practitioner block further down the About page: the radio-station
+     * photograph, cropped to Dr. Bouamara (the person on the right). Framing
+     * only — nothing about her appearance is altered.
      */
-    src: "/media/clinic/practice-hero.jpg",
-    alt: "A treatment room at the practice, with navy cabinetry and a modern dental chair",
-    position: "50% 40%",
+    src: generatedMedia.doctorPortraitSecondary,
+    alt: "Dr. Messaouda Bouamara at the Radio El Bahdia studio",
+    position: "50% 20%",
   },
 };
 
