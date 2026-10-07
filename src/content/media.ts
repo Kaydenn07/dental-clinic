@@ -193,11 +193,19 @@ export interface ServiceImage {
   alt: string;
   /** `true` while the picture is a stand-in rather than this clinic's own. */
   illustrative: boolean;
+  /**
+   * Bump this whenever the file behind `src` is replaced. The value is appended
+   * as `?v=…`, which forces browsers — and the Next image optimiser's
+   * long-lived cache — to fetch the new picture instead of showing the old one.
+   */
+  version?: number;
 }
 
 export const serviceImages: Record<string, ServiceImage> = {
   "check-up-and-cleaning": {
     src: "/media/services/check-up-and-cleaning.jpg",
+    /** Replaced twice: a nail clipper, then an incomplete arm. */
+    version: 2,
     alt: "A sterile tray of dental hygiene instruments — mouth mirror, probes and scaler",
     illustrative: true,
   },
@@ -299,8 +307,14 @@ export const serviceImages: Record<string, ServiceImage> = {
 };
 
 /** Image for a service slug, or `null` when none is registered. */
-export const getServiceImage = (slug: string): ServiceImage | null =>
-  serviceImages[slug] ?? null;
+export const getServiceImage = (slug: string): ServiceImage | null => {
+  const image = serviceImages[slug];
+  if (!image) return null;
+  // Only replaced pictures carry a version, so untouched URLs keep caching.
+  return image.version && image.version > 1
+    ? { ...image, src: `${image.src}?v=${image.version}` }
+    : image;
+};
 
 /** Stand-in for photography of the practice itself (home hero). */
 export const clinicPhoto: ServiceImage = {

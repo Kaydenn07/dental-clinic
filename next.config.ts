@@ -48,7 +48,27 @@ const nextConfig: NextConfig = {
     ],
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    /**
+     * Pages are served with `no-cache, must-revalidate` so a shared cache (a CDN
+     * or the hosting preview proxy) can never pin an old build for months —
+     * Next's default `s-maxage=31536000` on prerendered pages does exactly that,
+     * which makes replaced photographs look like they never changed. Hashed
+     * build assets under `/_next/static` keep their immutable caching.
+     */
+    const freshPages = [
+      { key: "Cache-Control", value: "no-cache, must-revalidate" },
+    ];
+
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      { source: "/", headers: freshPages },
+      { source: "/about", headers: freshPages },
+      { source: "/services", headers: freshPages },
+      { source: "/gallery", headers: freshPages },
+      { source: "/contact", headers: freshPages },
+      { source: "/appointment", headers: freshPages },
+      { source: "/legal/:slug*", headers: freshPages },
+    ];
   },
 };
 
