@@ -43,20 +43,24 @@ export const clinic = {
     email: "Drbouamara@gmail.com",
     /** WhatsApp is enabled on the secondary number only (digits, E.164). */
     whatsapp: "213671149592",
-    /** City confirmed by the clinic; the street address has not been supplied. */
+    /** City confirmed by the clinic; no street address has been supplied. */
     city: "Djelfa",
     country: "Algeria",
-    addressLine: "Djelfa, Algeria",
-    /** Street-level address: not provided. Nothing is rendered while null. */
-    streetAddress: null as string | null,
+    /**
+     * Locator published by the clinic on its own Google Maps listing, which the
+     * link below resolves to ("M782+2MC, Djelfa, Algeria"). A Plus Code rather
+     * than a street address — replace it the moment the clinic sends one.
+     */
+    addressLine: "M782+2MC, Djelfa, Algeria",
+    streetAddress: "M782+2MC" as string | null,
     /** Public Google Maps link supplied by the clinic. */
     mapLinkUrl: "https://maps.app.goo.gl/nb5PYvmst4qUFScg6",
     /**
-     * Paste an embed URL (`https://www.google.com/maps/embed?pb=…`) here to show
-     * a live map. Left null: a short share link cannot be embedded, so the
-     * contact page shows a styled panel plus the "Open in Google Maps" button.
+     * Live map on the contact page. This is the key-free embed form that
+     * resolves the clinic's listing — the share link above cannot be embedded.
      */
-    mapEmbedUrl: null as string | null,
+    mapEmbedUrl:
+      "https://www.google.com/maps?q=Esthetic%20%26%20implant%20Dental%20Centre%20Djelfa%20(dr.bouamara)&z=16&hl=en&output=embed" as string | null,
   },
 
   /** Social profiles — `null` hides the icon entirely. */
@@ -82,6 +86,10 @@ export const clinic = {
 
 /**
  * Opening hours — confirmed: open 24 hours a day, seven days a week.
+ *
+ * Stated by the clinic and independently visible on its own Google Maps
+ * listing ("Open 24 hours", all seven days, checked 2026-10-07), which is also
+ * where the phone number below is published.
  *
  * "00:00 → 24:00" is the canonical full-day representation and is exactly what
  * the booking engine understands: `expandTimeRange("00:00", "24:00", 30)`
