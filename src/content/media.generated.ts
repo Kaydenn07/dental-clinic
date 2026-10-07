@@ -2,10 +2,11 @@
  * ============================================================================
  *  MEDIA MANIFEST — the files that `npm run media:setup` produced
  * ============================================================================
- *  `scripts/media-setup.mjs` writes processed images into `public/media/…` and
- *  prints a ready-to-paste snippet for this file (it does not rewrite it, so
- *  hand-edited entries are never lost). Paste the snippet below, or point an
- *  entry at any other URL — `src/content/media.ts` reads everything from here.
+ *  `scripts/media-setup.mjs` writes processed images into `public/media/…` (and
+ *  the brand artwork into `public/brand/`), then prints a ready-to-paste
+ *  snippet for this file. It never rewrites the file itself, so hand-edited
+ *  entries are never lost — paste the snippet, or point an entry at any URL.
+ *  `src/content/media.ts` reads everything from here.
  *
  *  Every value is `null`/empty until a real file exists, which is what makes
  *  the site fall back to a labelled placeholder instead of a broken image.
@@ -14,6 +15,13 @@
  */
 
 export interface GeneratedMedia {
+  /** The clinic's own artwork, extracted from the logo sheet it supplied. */
+  brand: {
+    logoLight: string | null;
+    logoDark: string | null;
+    markLight: string | null;
+    markDark: string | null;
+  } | null;
   /** Portrait of Dr. Messaouda Bouamara for the About page. */
   doctorPortrait: string | null;
   /** Studio still from the television appearance. */
@@ -32,9 +40,31 @@ export interface GeneratedMedia {
 }
 
 export const generatedMedia: GeneratedMedia = {
-  doctorPortrait: null,
+  brand: {
+    logoLight: "/brand/logo-light.png",
+    logoDark: "/brand/logo-dark.png",
+    markLight: "/brand/mark-light.png",
+    markDark: "/brand/mark-dark.png",
+  },
+
+  doctorPortrait: "/media/doctor/dr-bouamara.jpg",
+
   appearanceStill: null,
-  results: [],
+
+  /**
+   * The clinic's own before/after sheets. The printed promotional band (and,
+   * on one sheet, the design tool's template footer) is cropped away; case-06
+   * is printed after/before and is swapped so it reads before → after.
+   */
+  results: [
+    { id: "case-01", composite: "/media/results/case-01.jpg" },
+    { id: "case-02", composite: "/media/results/case-02.jpg" },
+    { id: "case-03", composite: "/media/results/case-03.jpg" },
+    { id: "case-04", composite: "/media/results/case-04.jpg" },
+    { id: "case-05", composite: "/media/results/case-05.jpg" },
+    { id: "case-06", composite: "/media/results/case-06.jpg" },
+  ],
+
   facility: [
     // Illustrative interiors, supplied while the clinic's own photographs are
     // still being taken. They are labelled "Illustrative view" on the site.

@@ -231,7 +231,7 @@ never reach the browser.
 
 | What | Where |
 |---|---|
-| **Logo artwork** | Save the exported files in `public/brand/`, then set `brand.logoLight` / `logoDark` / `markLight` / `markDark` in `src/content/media.ts`. Until then a built-in navy/gold tooth-and-smile mark plus a typographic lockup is used (`src/components/brand/{Logo,BrandMark,mark}.tsx`, favicon `src/app/icon.svg`). |
+| **Logo artwork** | `npm run media:setup` cuts the clinic's logo sheet into `public/brand/logo-light.png`, `logo-dark.png`, `mark-light.png` and `mark-dark.png` (plus the favicon and app icon) and records them in `src/content/media.generated.ts`. Drop the files in by hand and set the same four paths in `src/content/media.ts` to override. Without artwork a built-in navy/gold tooth-and-smile mark plus a typographic lockup is used. |
 | Clinic name, tagline, phone, email, WhatsApp, town, Maps link | `src/content/site.ts` |
 | Opening hours | **Admin → Opening hours** (or `src/content/site.ts` for the built-in default) |
 | **Photographs** | Save files in `public/media/`, then set the path in `src/content/media.ts` — doctor portrait, facility gallery, before/after results, TV-appearance still |

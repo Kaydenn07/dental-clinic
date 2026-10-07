@@ -65,14 +65,11 @@ export interface ResultCase {
 
 /**
  * ── Brand ───────────────────────────────────────────────────────────────────
- * The clinic supplied a logo sheet. Save the variants it contains here:
- *   public/brand/logo-light.png   navy wordmark + gold (transparent background)
- *   public/brand/logo-dark.png    white wordmark + gold (transparent)
- *   public/brand/mark-light.png   icon only, navy + gold
- *   public/brand/mark-dark.png    icon only, white + gold
- * Then uncomment the four lines below — no component changes are needed.
+ * The clinic's own logo sheet is cut into the four variants below by
+ * `npm run media:setup` (which also writes the favicon and app icon). Set any
+ * entry by hand to override it — every surface reads the artwork from here.
  */
-export const brand: BrandAssets = {
+export const brand: BrandAssets = generatedMedia.brand ?? {
   logoLight: null,
   logoDark: null,
   markLight: null,

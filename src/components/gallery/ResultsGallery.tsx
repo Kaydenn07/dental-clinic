@@ -84,7 +84,11 @@ export function ResultsGallery() {
                     alt={`${item.title} — before and after treatment`}
                     label={item.title}
                     caption="Photo pending"
-                    className="aspect-16/10 w-full"
+                    /* The sheets are the clinic's own layouts and differ in
+                       shape, so the whole photograph is shown rather than
+                       cropped to fill a fixed frame. */
+                    className="aspect-square w-full bg-cream-50"
+                    imageClassName="object-contain"
                     sizes="(min-width: 1024px) 50vw, 100vw"
                   />
                 )}

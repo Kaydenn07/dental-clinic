@@ -33,6 +33,8 @@ const OUT_DIR = join(ROOT, "public", "media");
 
 /** Where to look for each source file (first match wins). */
 const INPUT = {
+  /** The logo sheet: lockups, the mark, and the navy app icon. */
+  brand: ["brand/logo-sheet.*", "brand/logo.*", "logo.*"],
   /** The radio-studio photograph containing Dr. Messaouda Bouamara. */
   radio: ["doctor/radio-station.*", "radio-station.*", "doctor.*"],
   /** A studio still from the television appearance. */
@@ -43,6 +45,8 @@ const INPUT = {
     "results/case-02.*",
     "results/case-03.*",
     "results/case-04.*",
+    "results/case-05.*",
+    "results/case-06.*",
   ],
   /** Clinic interior photographs (optional). */
   facility: ["facility/*.*"],
@@ -62,9 +66,61 @@ const INPUT = {
  */
 const CROP = {
   radioDoctor: { left: 0.485, top: 0.02, width: 0.5, height: 0.72 },
-  /** Optional per-case override, e.g. { "case-01": { left: 0, top: 0, width: 1, height: 0.8 } } */
-  results: {},
+  /**
+   * Per-case overrides. Anything not listed here is trimmed automatically by
+   * `trimPromoBand()`.
+   */
+  results: {
+    /**
+     * The sheet's band fades to a very dark green at its top, so the colour
+     * test cannot see it, and the gold divider line sits directly above the
+     * contact details. Cutting just below the divider removes all of it.
+     */
+    "case-03": { left: 0, top: 0, width: 1, height: 0.91 },
+    /**
+     * This sheet carries the design tool's TEMPLATE footer — a placeholder
+     * French phone number (+33 6 40 40 40 40) and "Rue de la Clinique" — not
+     * the clinic's band. Nothing invented may reach the site, so the footer is
+     * cut off with the rest.
+     */
+    "case-05": { left: 0, top: 0, width: 1, height: 0.94 },
+  },
 };
+
+/**
+ * Per-case corrections, by output id.
+ *
+ * `case-06` is printed "AFTER | BEFORE": the two halves are swapped so the
+ * sheet reads before → after like the others. Swapping keeps each half — and
+ * the signature printed inside it — the right way round; mirroring the whole
+ * sheet would reverse that lettering.
+ */
+const TRANSFORM = {
+  "case-06": { swapHalves: true },
+};
+
+/** Swaps the left and right halves of a side-by-side sheet. */
+async function swapHalves(source) {
+  const meta = await sharp(source).metadata();
+  const width = meta.width ?? 0;
+  const height = meta.height ?? 0;
+  const half = Math.floor(width / 2);
+  if (half === 0) return source;
+
+  const left = await sharp(source).extract({ left: 0, top: 0, width: half, height }).png().toBuffer();
+  const right = await sharp(source)
+    .extract({ left: half, top: 0, width: width - half, height })
+    .png()
+    .toBuffer();
+
+  return sharp({ create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
+    .composite([
+      { input: right, left: 0, top: 0 },
+      { input: left, left: width - half, top: 0 },
+    ])
+    .png()
+    .toBuffer();
+}
 
 /**
  * The clinic's promotional band is a saturated green strip carrying the phone
@@ -201,7 +257,7 @@ async function cropRegion(file, box) {
 const results = [];
 
 /** Ready-to-paste entries for src/content/media.generated.ts. */
-const manifest = { results: [], facility: [], unassigned: [] };
+const manifest = { results: [], facility: [], unassigned: [], brand: null };
 
 /**
  * Gallery slot for each suggested facility file name. Files whose name is not
@@ -271,14 +327,19 @@ async function buildResults() {
     const id = String(index).padStart(2, "0");
     const out = join(OUT_DIR, "results", `case-${id}.jpg`);
 
-    const override = CROP.results[id];
-    const keep = override ? null : await trimPromoBand(source);
-    const meta = await sharp(source).metadata();
+    const transform = TRANSFORM[`case-${id}`] ?? {};
 
-    let pipeline = sharp(source);
+    // Work from a buffer when a correction has to be applied first.
+    const input = transform.swapHalves ? await swapHalves(source) : source;
+
+    const override = CROP.results[`case-${id}`];
+    const keep = override ? null : await trimPromoBand(input);
+    const meta = await sharp(input).metadata();
+
+    let pipeline = sharp(input);
 
     if (override) {
-      pipeline = pipeline.extract(await cropRegion(source, override));
+      pipeline = pipeline.extract(await cropRegion(input, override));
     } else if (keep !== null && keep < (meta.height ?? 0)) {
       pipeline = pipeline.extract({
         left: 0,
@@ -294,11 +355,15 @@ async function buildResults() {
       .toFile(out);
 
     const trimmed = !override && keep !== null && keep < (meta.height ?? 0);
-    report(
-      `Results case ${id}`,
-      out,
-      trimmed ? "promotional band trimmed" : "no promotional band found",
-    );
+    const notes = [];
+    if (transform.swapHalves) notes.push("halves swapped to read before \u2192 after");
+    if (override) {
+      notes.push("explicit crop applied");
+    } else {
+      notes.push(trimmed ? "promotional band trimmed" : "no promotional band found");
+    }
+
+    report(`Results case ${id}`, out, notes.join("; "));
     manifest.results.push({ id: `case-${id}`, src: `/media/results/case-${id}.jpg` });
   }
 
@@ -343,6 +408,16 @@ async function buildFacility() {
 function printManifestSnippet() {
   const blocks = [];
 
+  if (manifest.brand) {
+    blocks.push(
+      "  brand: {\n" +
+        Object.entries(manifest.brand)
+          .map(([key, value]) => `    ${key}: "${value}",`)
+          .join("\n") +
+        "\n  },",
+    );
+  }
+
   if (manifest.results.length > 0) {
     blocks.push(
       "  results: [\n" +
@@ -382,6 +457,142 @@ function printManifestSnippet() {
   }
 }
 
+/* ------------------------------------------------------------- logo sheet -- */
+
+/**
+ * Crop boxes (fractions of the logo sheet) for the artwork the clinic sent.
+ * The sheet is a single image holding several lockups; each box below was
+ * measured against it. `whitenToAlpha` turns the sheet's white paper into
+ * transparency, and `toWarmWhite` re-colours the navy ink for dark surfaces —
+ * the shape and lettering are never redrawn.
+ */
+const BRAND_CROPS = {
+  /** Horizontal lockup: mark + "DR. BOUAMARA / DENTAL CLINIC" on white. */
+  lockup: { left: 0.0497, top: 0.1563, width: 0.625, height: 0.3125 },
+  /** Square tile: the white mark on a navy panel — used for the app icon. */
+  tile: { left: 0.5767, top: 0.6406, width: 0.1392, height: 0.2422 },
+  /** The mark on its own, navy ink on white. */
+  mark: { left: 0.7557, top: 0.6354, width: 0.1918, height: 0.2552 },
+};
+
+const BRAND_DIR = join(ROOT, "public", "brand");
+const APP_DIR = join(ROOT, "src", "app");
+
+/** Turns the sheet's paper white into transparency; ink keeps its colour. */
+async function whitenToAlpha(source, box) {
+  const region = await cropRegion(source, box);
+  const { data, info } = await sharp(source)
+    .extract(region)
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const out = Buffer.alloc(info.width * info.height * 4);
+  const channels = info.channels;
+
+  for (let i = 0; i < info.width * info.height; i += 1) {
+    const p = i * channels;
+    const r = data[p] ?? 255;
+    const g = data[p + 1] ?? 255;
+    const b = data[p + 2] ?? 255;
+    const luminance = (r + g + b) / 3;
+
+    // Paper → transparent, ink → opaque, anti-aliased edge → partial alpha.
+    const alpha =
+      luminance >= 246 ? 0 : luminance <= 232 ? 255 : Math.round((255 * (246 - luminance)) / 14);
+
+    const o = i * 4;
+    out[o] = r;
+    out[o + 1] = g;
+    out[o + 2] = b;
+    out[o + 3] = alpha;
+  }
+
+  return sharp(out, { raw: { width: info.width, height: info.height, channels: 4 } });
+}
+
+/** Re-colours the navy ink to warm white, leaving the gold accent alone. */
+async function toWarmWhite(pipeline) {
+  const { data, info } = await pipeline.png().toBuffer().then((buffer) =>
+    sharp(buffer).ensureAlpha().raw().toBuffer({ resolveWithObject: true }),
+  );
+
+  const out = Buffer.from(data);
+  for (let i = 0; i < info.width * info.height; i += 1) {
+    const o = i * 4;
+    if (out[o + 3] === 0) continue;
+    // Blue-leading pixels are the navy ink (the gold accent is red-leading).
+    if ((out[o + 2] ?? 0) >= (out[o] ?? 0)) {
+      out[o] = 250;
+      out[o + 1] = 249;
+      out[o + 2] = 246;
+    }
+  }
+
+  return sharp(out, { raw: { width: info.width, height: info.height, channels: 4 } });
+}
+
+/** The app icon: the clinic's mark in white, centred on its own navy panel. */
+async function buildAppIcons(markPipeline, size) {
+  const markWidth = Math.round(size * 0.58);
+  const mark = await markPipeline
+    .resize({ width: markWidth, fit: "inside" })
+    .png()
+    .toBuffer({ resolveWithObject: true });
+
+  const tile = `<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${size}" height="${size}" rx="${Math.round(size * 0.22)}" fill="#0B2342"/>
+    <rect x="1" y="1" width="${size - 2}" height="${size - 2}" rx="${Math.round(size * 0.22) - 1}"
+          fill="none" stroke="#C2A06B" stroke-opacity="0.35" stroke-width="2"/>
+  </svg>`;
+
+  return sharp(Buffer.from(tile))
+    .composite([
+      {
+        input: mark.data,
+        left: Math.round((size - mark.info.width) / 2),
+        top: Math.round((size - mark.info.height) / 2),
+      },
+    ])
+    .png()
+    .toBuffer();
+}
+
+async function buildBrand() {
+  const source = firstMatch(INPUT.brand);
+  if (!source) return;
+
+  ensureDir(BRAND_DIR);
+
+  const lockup = await whitenToAlpha(source, BRAND_CROPS.lockup);
+  const mark = await whitenToAlpha(source, BRAND_CROPS.mark);
+
+  await lockup.clone().png().toFile(join(BRAND_DIR, "logo-light.png"));
+  const lockupDark = await toWarmWhite(lockup.clone());
+  await lockupDark.clone().png().toFile(join(BRAND_DIR, "logo-dark.png"));
+  await mark.clone().png().toFile(join(BRAND_DIR, "mark-light.png"));
+  const markDark = await toWarmWhite(mark.clone());
+  await markDark.clone().png().toFile(join(BRAND_DIR, "mark-dark.png"));
+
+  // Favicon + home-screen icon straight from the same artwork.
+  await sharp(await buildAppIcons(markDark.clone(), 512)).toFile(join(APP_DIR, "icon.png"));
+  await sharp(await buildAppIcons(markDark.clone(), 180)).toFile(join(APP_DIR, "apple-icon.png"));
+
+  for (const file of ["logo-light.png", "logo-dark.png", "mark-light.png", "mark-dark.png"]) {
+    report("Brand artwork", join(BRAND_DIR, file));
+  }
+  for (const file of ["icon.png", "apple-icon.png"]) {
+    report("App icon", join(APP_DIR, file));
+  }
+
+  manifest.brand = {
+    logoLight: "/brand/logo-light.png",
+    logoDark: "/brand/logo-dark.png",
+    markLight: "/brand/mark-light.png",
+    markDark: "/brand/mark-dark.png",
+  };
+}
+
 /* -------------------------------------------------------------------- main -- */
 
 async function main() {
@@ -398,6 +609,7 @@ async function main() {
     return;
   }
 
+  await buildBrand();
   await buildDoctorPortrait();
   await buildAppearanceStill();
   await buildResults();
