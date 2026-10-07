@@ -256,6 +256,46 @@ export const serviceImages: Record<string, ServiceImage> = {
     alt: "A stainless steel orthodontic space maintainer appliance on a white dish",
     illustrative: true,
   },
+  "gum-treatment": {
+    src: "/media/services/gum-treatment.jpg",
+    alt: "Periodontal probes and curettes beside a model of a jaw on a white tray",
+    illustrative: true,
+  },
+  "gum-grafting": {
+    src: "/media/services/gum-grafting.jpg",
+    alt: "Micro-surgical instruments, a suture packet and sterile gauze on a white tray",
+    illustrative: true,
+  },
+  "root-canal-treatment": {
+    src: "/media/services/root-canal-treatment.jpg",
+    alt: "Endodontic files with colour-coded handles fanned out on a white tray",
+    illustrative: true,
+  },
+  "endodontic-microsurgery": {
+    src: "/media/services/endodontic-microsurgery.jpg",
+    alt: "A dental operating microscope above an instrument tray in a treatment room",
+    illustrative: true,
+  },
+  extractions: {
+    src: "/media/services/extractions.jpg",
+    alt: "A sterile set of extraction forceps and elevators on white surgical cloth",
+    illustrative: true,
+  },
+  "bone-grafting": {
+    src: "/media/services/bone-grafting.jpg",
+    alt: "Bone graft material in a dish with a spatula beside a model of a jaw",
+    illustrative: true,
+  },
+  "3d-imaging": {
+    src: "/media/services/3d-imaging.jpg",
+    alt: "A dental CBCT 3D imaging scanner in a treatment room",
+    illustrative: true,
+  },
+  "digital-smile-planning": {
+    src: "/media/services/digital-smile-planning.jpg",
+    alt: "A monitor showing a 3D dental scan beside a model of a jaw",
+    illustrative: true,
+  },
 };
 
 /** Image for a service slug, or `null` when none is registered. */
