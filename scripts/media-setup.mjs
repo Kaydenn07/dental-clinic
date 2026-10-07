@@ -55,12 +55,96 @@ const INPUT = {
  * the clinic confirmed that Dr. Messaouda Bouamara is the person on the right
  * (cream striped jacket, white headscarf). It is a framing crop only: nothing
  * about her appearance is altered or generated.
+ *
+ * Case sheets are NOT given a fixed crop: the clinic's posts carry a printed
+ * promotional band of varying depth, so `trimPromoBand()` finds it by colour.
+ * Add an entry below only to override that decision.
  */
 const CROP = {
   radioDoctor: { left: 0.485, top: 0.02, width: 0.5, height: 0.72 },
-  /** Trims the printed promotional band from the clinic's case sheets. */
-  resultSheet: { left: 0, top: 0, width: 1, height: 0.74 },
+  /** Optional per-case override, e.g. { "case-01": { left: 0, top: 0, width: 1, height: 0.8 } } */
+  results: {},
 };
+
+/**
+ * The clinic's promotional band is a saturated green strip carrying the phone
+ * numbers and signature. It is detected by colour rather than by a fixed
+ * percentage, because the sheets are cropped differently.
+ *
+ * Only the bottom of the image is examined, and the band must start at the very
+ * last row, so a green background inside a photograph is never mistaken for it.
+ */
+const BAND = {
+  /** A row counts as band pixels when green leads red and blue by this much. */
+  dominance: 6,
+  /** Minimum share of a row that must be green for the row to count. */
+  rowThreshold: 0.55,
+  /** A band deeper than this share of the image is treated as content, not a band. */
+  maxDepth: 0.3,
+  /** Rows examined from the bottom. */
+  searchDepth: 0.45,
+};
+
+/** Returns the height to keep, or the original height when no band is found. */
+async function trimPromoBand(file) {
+  const meta = await sharp(file).metadata();
+  const width = meta.width ?? 0;
+  const height = meta.height ?? 0;
+  if (width === 0 || height === 0) return height;
+
+  // Work on a small copy: enough to read colours, fast on multi-megabyte files.
+  const sampleWidth = 240;
+  const { data, info } = await sharp(file)
+    .resize({ width: sampleWidth })
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  const channels = info.channels;
+  const rows = info.height;
+
+  const rowIsBand = (row) => {
+    let green = 0;
+    for (let column = 0; column < sampleWidth; column += 1) {
+      const offset = (row * sampleWidth + column) * channels;
+      const r = data[offset] ?? 0;
+      const g = data[offset + 1] ?? 0;
+      const b = data[offset + 2] ?? 0;
+      if (g > r + BAND.dominance && g > b + BAND.dominance) green += 1;
+    }
+    return green / sampleWidth >= BAND.rowThreshold;
+  };
+
+  const searchFrom = Math.floor(rows * (1 - BAND.searchDepth));
+
+  // The band must reach the final row.
+  if (!rowIsBand(rows - 1)) return height;
+
+  let firstBandRow = rows - 1;
+  for (let row = rows - 2; row >= searchFrom; row -= 1) {
+    if (rowIsBand(row)) {
+      firstBandRow = row;
+      continue;
+    }
+    // Tolerate a couple of light rows (text, gold rules) inside the band.
+    let gap = true;
+    for (let probe = 1; probe <= 3 && row - probe >= searchFrom; probe += 1) {
+      if (rowIsBand(row - probe)) {
+        gap = false;
+        break;
+      }
+    }
+    if (gap) break;
+  }
+
+  const bandSampleRows = rows - firstBandRow;
+  const bandShare = bandSampleRows / rows;
+
+  if (bandShare > BAND.maxDepth || bandShare < 0.01) return height;
+
+  const keep = Math.round(height * (1 - bandShare));
+  return Math.max(1, keep - Math.round(height * 0.004)); // small safety margin
+}
 
 const DOCTOR_PORTRAIT = { width: 1200, height: 1500 }; // 4:5
 const RESULT_MAX = { width: 1600 };
@@ -170,15 +254,34 @@ async function buildResults() {
     const id = String(index).padStart(2, "0");
     const out = join(OUT_DIR, "results", `case-${id}.jpg`);
 
-    const region = await cropRegion(source, CROP.resultSheet);
+    const override = CROP.results[id];
+    const keep = override ? null : await trimPromoBand(source);
+    const meta = await sharp(source).metadata();
 
-    await sharp(source)
-      .extract(region)
+    let pipeline = sharp(source);
+
+    if (override) {
+      pipeline = pipeline.extract(await cropRegion(source, override));
+    } else if (keep !== null && keep < (meta.height ?? 0)) {
+      pipeline = pipeline.extract({
+        left: 0,
+        top: 0,
+        width: meta.width ?? 0,
+        height: keep,
+      });
+    }
+
+    await pipeline
       .resize({ width: RESULT_MAX.width, withoutEnlargement: true })
       .jpeg({ quality: 88, mozjpeg: true })
       .toFile(out);
 
-    report(`Results case ${id}`, out, "promotional band trimmed");
+    const trimmed = !override && keep !== null && keep < (meta.height ?? 0);
+    report(
+      `Results case ${id}`,
+      out,
+      trimmed ? "promotional band trimmed" : "no promotional band found",
+    );
   }
 
   if (index === 0) return;
