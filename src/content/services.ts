@@ -8,7 +8,8 @@ import type { Service, ServiceCategory } from "@/types/content";
  *  a statement of what Dr. Bouamara Dental Clinic offers. Before launch:
  *    • keep only the treatments the clinic actually provides,
  *    • confirm the duration of each appointment slot,
- *    • add a real photo per service (`image`).
+ *    • add a real photo per service (`image` overrides the image registry in
+ *      `src/content/media.ts`).
  *  Copy avoids outcome/efficacy claims on purpose — see README → Content rules.
  * ============================================================================
  */

@@ -175,6 +175,51 @@ export const resultsDisclaimer =
   "Published with the patient's written consent. Every case is individual and results vary from person to person.";
 
 /**
+ * ── Clinical / service imagery ──────────────────────────────────────────────
+ * Professional, non-identifiable dental imagery: no faces, no identifiable
+ * patients, no treatment outcomes. These are stand-ins for photography of the
+ * practice — the UI does not present them as photographs of this clinic.
+ *
+ * Replace a file in `public/media/services/` (same name) or point `src` at a
+ * real photograph and delete the `illustrative` flag.
+ */
+export interface ServiceImage {
+  src: string;
+  alt: string;
+  /** `true` while the picture is a stand-in rather than this clinic's own. */
+  illustrative: boolean;
+}
+
+export const serviceImages: Record<string, ServiceImage> = {
+  "check-up-and-cleaning": {
+    src: "/media/services/check-up-and-cleaning.jpg",
+    alt: "Dental instruments laid out on a tray beside gloved hands",
+    illustrative: true,
+  },
+  "teeth-whitening": {
+    src: "/media/services/teeth-whitening.jpg",
+    alt: "A dental shade guide of ceramic tabs graded from cream to bright white",
+    illustrative: true,
+  },
+  veneers: {
+    src: "/media/services/veneers.jpg",
+    alt: "Thin ceramic veneers resting on a white tray",
+    illustrative: true,
+  },
+};
+
+/** Image for a service slug, or `null` when none is registered. */
+export const getServiceImage = (slug: string): ServiceImage | null =>
+  serviceImages[slug] ?? null;
+
+/** Stand-in for photography of the practice itself (home hero). */
+export const clinicPhoto: ServiceImage = {
+  src: "/media/clinic/practice-hero.jpg",
+  alt: "A dental treatment room with navy cabinetry and a modern dental chair",
+  illustrative: true,
+};
+
+/**
  * ── Media appearance ────────────────────────────────────────────────────────
  * Optional still from the television appearance.
  * Suggested file: public/media/appearances/nabd-el-seha.jpg

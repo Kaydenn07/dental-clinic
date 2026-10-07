@@ -3,6 +3,7 @@ import { RiArrowRightLine, RiCalendarCheckLine, RiMapPin2Line, RiTimeLine } from
 
 import { Reveal } from "@/components/ui/Reveal";
 import { MediaPlaceholder } from "@/components/ui/primitives";
+import { clinicPhoto } from "@/content/media";
 import { clinic, navigation, scheduleSummary } from "@/content/site";
 import { heroContent } from "@/content/sections";
 import { services } from "@/content/services";
@@ -86,10 +87,15 @@ export function Hero() {
         <Reveal delay={120} className="relative">
           <div className="relative mx-auto aspect-4/5 w-full max-w-md overflow-hidden rounded-card border border-white/10 shadow-lift lg:max-w-none">
             <MediaPlaceholder
-              src={null}
-              alt="Clinic photograph"
-              label="Clinic photography"
-              caption="Pending — a real photo of the practice goes here"
+              src={clinicPhoto.src}
+              alt={clinicPhoto.alt}
+              label="The practice"
+              caption={
+                clinicPhoto.illustrative
+                  ? "Illustrative image — real photographs of the clinic are on the way"
+                  : "The practice"
+              }
+              tag={clinicPhoto.illustrative ? "Illustrative image" : undefined}
               className="h-full w-full"
               priority
               sizes="(min-width: 1024px) 45vw, 90vw"

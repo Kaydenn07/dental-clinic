@@ -265,6 +265,7 @@ export function MediaPlaceholder({
   alt,
   label,
   caption,
+  tag,
   className,
   imageClassName,
   icon = "◈",
@@ -275,6 +276,11 @@ export function MediaPlaceholder({
   alt: string;
   label?: string;
   caption?: string;
+  /**
+   * Small corner label shown *over* a real image — used for stand-in imagery
+   * so it is never mistaken for a photograph of this clinic.
+   */
+  tag?: string;
   className?: string;
   imageClassName?: string;
   icon?: string;
@@ -292,6 +298,11 @@ export function MediaPlaceholder({
           priority={priority}
           className={cn("object-cover", imageClassName)}
         />
+        {tag && (
+          <span className="absolute bottom-3 left-3 rounded-full bg-ink-900/80 px-3 py-1 font-ui text-[0.625rem] font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
+            {tag}
+          </span>
+        )}
       </div>
     );
   }

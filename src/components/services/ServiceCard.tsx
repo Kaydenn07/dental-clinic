@@ -2,6 +2,7 @@ import Link from "next/link";
 import { RiArrowRightLine } from "react-icons/ri";
 
 import { MediaPlaceholder } from "@/components/ui/primitives";
+import { getServiceImage } from "@/content/media";
 import { categoryName } from "@/content/services";
 import type { Service } from "@/types/content";
 
@@ -13,13 +14,20 @@ export function ServiceCard({
   service: Service;
   priority?: boolean;
 }) {
+  const art = getServiceImage(service.slug);
+
   return (
     <article className="card-interactive group flex h-full flex-col overflow-hidden">
       <MediaPlaceholder
-        src={service.image}
-        alt={`${service.title} — clinic photograph`}
+        src={service.image ?? art?.src ?? null}
+        alt={art?.alt ?? service.title}
         label={service.title}
-        caption={`${service.durationMinutes} min appointment`}
+        caption={
+          art?.illustrative
+            ? `Illustrative image · ${service.durationMinutes} min appointment`
+            : `${service.durationMinutes} min appointment`
+        }
+        tag={art?.illustrative ? "Illustrative image" : undefined}
         className="h-48 w-full"
         imageClassName="transition-transform duration-500 ease-premium group-hover:scale-[1.04]"
         priority={priority}
