@@ -3,6 +3,7 @@ import { RiArrowRightLine, RiCalendarCheckLine, RiChat3Line, RiStethoscopeLine }
 
 import { CtaBand } from "@/components/home/CtaBand";
 import { Hero } from "@/components/home/Hero";
+import { MediaAppearanceSection } from "@/components/home/MediaAppearance";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { TrustStrip } from "@/components/home/TrustStrip";
 import { ServiceCard } from "@/components/services/ServiceCard";
@@ -187,6 +188,7 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <MediaAppearanceSection />
       <ReviewsSection />
       <CtaBand />
     </main>

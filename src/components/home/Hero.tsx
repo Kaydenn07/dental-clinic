@@ -3,7 +3,7 @@ import { RiArrowRightLine, RiCalendarCheckLine, RiMapPin2Line, RiTimeLine } from
 
 import { Reveal } from "@/components/ui/Reveal";
 import { MediaPlaceholder } from "@/components/ui/primitives";
-import { clinic, navigation, scheduleConfirmed } from "@/content/site";
+import { clinic, navigation, scheduleSummary } from "@/content/site";
 import { heroContent } from "@/content/sections";
 import { services } from "@/content/services";
 
@@ -64,9 +64,7 @@ export function Hero() {
                   <dt className="font-ui text-[0.6875rem] font-semibold uppercase tracking-wider text-white/50">
                     Opening hours
                   </dt>
-                  <dd className="mt-1 font-body text-sm text-white/85">
-                    {scheduleConfirmed ? "Confirmed" : "Demo schedule — being confirmed"}
-                  </dd>
+                  <dd className="mt-1 font-body text-sm text-white/85">{scheduleSummary}</dd>
                 </div>
               </div>
 
@@ -77,7 +75,7 @@ export function Hero() {
                     Location
                   </dt>
                   <dd className="mt-1 font-body text-sm text-white/85">
-                    {clinic.contact.country} · address pending
+                    {clinic.contact.addressLine}
                   </dd>
                 </div>
               </div>

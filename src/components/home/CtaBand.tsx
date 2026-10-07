@@ -2,15 +2,15 @@ import Link from "next/link";
 import { RiArrowRightLine, RiPhoneLine, RiWhatsappLine } from "react-icons/ri";
 
 import { clinic } from "@/content/site";
-import { toTelHref } from "@/lib/utils";
+import { toTelHref, toWhatsAppHref } from "@/lib/utils";
 
 /**
  * Closing call-to-action band.
  *
  * Contact options are configuration-driven: the WhatsApp button only appears
- * once a number is set in `src/content/site.ts`, and the phone number falls
- * back to whatever is configured (plus a screen-reader note that it is still a
- * placeholder).
+ * once a number is set in `src/content/site.ts` — currently the clinic's
+ * secondary number, +213 671 149 592 — and the phone link uses the primary
+ * number.
  */
 export function CtaBand({
   title = "Ready to book your visit?",
@@ -24,7 +24,7 @@ export function CtaBand({
   primaryLabel?: string;
 }) {
   const whatsappHref = clinic.contact.whatsapp
-    ? `https://wa.me/${clinic.contact.whatsapp.replace(/\D/g, "")}`
+    ? toWhatsAppHref(clinic.contact.whatsapp)
     : null;
 
   return (
@@ -53,14 +53,16 @@ export function CtaBand({
               >
                 <RiWhatsappLine aria-hidden="true" className="h-4 w-4" />
                 WhatsApp
+                <span className="sr-only">
+                  (opens WhatsApp in a new tab)
+                </span>
               </a>
-            ) : (
-              <a href={toTelHref(clinic.contact.phone)} className="btn-outline-light">
-                <RiPhoneLine aria-hidden="true" className="h-4 w-4" />
-                {clinic.contact.phoneDisplay}
-                <span className="sr-only"> (placeholder number)</span>
-              </a>
-            )}
+            ) : null}
+
+            <a href={toTelHref(clinic.contact.phone)} className="btn-outline-light">
+              <RiPhoneLine aria-hidden="true" className="h-4 w-4" />
+              {clinic.contact.phoneDisplay}
+            </a>
           </div>
         </div>
       </div>

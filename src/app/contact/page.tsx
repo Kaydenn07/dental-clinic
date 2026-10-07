@@ -1,22 +1,30 @@
 import type { Metadata } from "next";
-import { RiMailLine, RiMapPin2Line, RiPhoneLine, RiTimeLine } from "react-icons/ri";
+import {
+  RiExternalLinkLine,
+  RiMailLine,
+  RiMapPin2Line,
+  RiPhoneLine,
+  RiTimeLine,
+  RiWhatsappLine,
+} from "react-icons/ri";
 
 import { ContactForm } from "@/components/contact/ContactForm";
-import { Alert, PlaceholderBadge, SectionHeading } from "@/components/ui/primitives";
+import { PlaceholderBadge, SectionHeading } from "@/components/ui/primitives";
 import { clinic, scheduleConfirmed } from "@/content/site";
-import { getOpeningHours } from "@/lib/queries/site";
-import { toTelHref } from "@/lib/utils";
+import { getOpeningHours, getScheduleSummary } from "@/lib/queries/site";
+import { toTelHref, toWhatsAppHref } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Contact Dr. Bouamara Dental Clinic: send a message, request an appointment, or find the practice. Contact details and opening hours are still being confirmed.",
+    "Contact Dr. Bouamara Dental Clinic: send a message, request an appointment, call, or open the practice on Google Maps. Open 24 hours a day, seven days a week.",
   alternates: { canonical: "/contact" },
 };
 
-/** Formats "09:00" → "9:00 AM" for display. */
+/** Formats "09:00" → "9:00 am"; "24:00" reads as "midnight". */
 function displayTime(value: string | null): string {
   if (!value) return "—";
+  if (value === "24:00") return "midnight";
   const [hour, minute] = value.split(":").map(Number);
   return new Intl.DateTimeFormat("en-GB", {
     hour: "numeric",
@@ -26,8 +34,8 @@ function displayTime(value: string | null): string {
 }
 
 export default async function ContactPage() {
-  const hours = await getOpeningHours();
-  const addressIsPlaceholder = clinic.contact.addressLine.toLowerCase().includes("to be confirmed");
+  const [hours, summary] = await Promise.all([getOpeningHours(), getScheduleSummary()]);
+  const whatsappEnabled = Boolean(clinic.contact.whatsapp);
 
   return (
     <main>
@@ -38,7 +46,7 @@ export default async function ContactPage() {
             as="h1"
             eyebrow="Contact"
             title="Talk to the clinic"
-            description="Send a message and the clinic will get back to you. For urgent problems, please call."
+            description={`${summary}. Send a message and the clinic will get back to you — for urgent problems, please call.`}
           />
         </div>
       </section>
@@ -62,64 +70,108 @@ export default async function ContactPage() {
               <h2 className="font-heading text-xl text-ink-900">Clinic details</h2>
 
               <ul className="mt-5 space-y-5">
+                {/* Location */}
                 <li className="flex gap-4">
-                  <RiMapPin2Line aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink" />
+                  <RiMapPin2Line
+                    aria-hidden="true"
+                    className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink"
+                  />
                   <div>
-                    <p className="font-ui text-xs uppercase tracking-wider text-ink-500">Address</p>
+                    <p className="font-ui text-xs uppercase tracking-wider text-ink-500">Location</p>
                     <p className="mt-1 font-body text-sm text-ink-900">
                       {clinic.contact.addressLine}
                     </p>
-                    {addressIsPlaceholder && (
-                      <PlaceholderBadge className="mt-2" label="Address pending" />
+                    {clinic.contact.mapLinkUrl && (
+                      <a
+                        href={clinic.contact.mapLinkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1.5 font-ui text-sm font-medium text-brand-700 hover:text-brand-800"
+                      >
+                        Open in Google Maps
+                        <RiExternalLinkLine aria-hidden="true" className="h-3.5 w-3.5" />
+                        <span className="sr-only">(opens in a new tab)</span>
+                      </a>
+                    )}
+                    {!clinic.contact.streetAddress && (
+                      <PlaceholderBadge className="mt-3" label="Street address pending" />
                     )}
                   </div>
                 </li>
 
+                {/* Phones */}
                 <li className="flex gap-4">
-                  <RiPhoneLine aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink" />
+                  <RiPhoneLine
+                    aria-hidden="true"
+                    className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink"
+                  />
                   <div>
                     <p className="font-ui text-xs uppercase tracking-wider text-ink-500">Phone</p>
-                    <p className="mt-1 font-body text-sm">
+                    <p className="mt-1 space-y-1 font-body text-sm">
                       <a
                         href={toTelHref(clinic.contact.phone)}
-                        className="text-brand-700 hover:text-brand-800"
+                        className="block text-brand-700 hover:text-brand-800"
                       >
                         {clinic.contact.phoneDisplay}
+                        <span className="ms-2 font-ui text-[0.6875rem] uppercase tracking-wider text-ink-400">
+                          Primary
+                        </span>
                       </a>
-                      <span className="sr-only"> (placeholder number)</span>
+                      <a
+                        href={toTelHref(clinic.contact.phoneSecondary)}
+                        className="block text-brand-700 hover:text-brand-800"
+                      >
+                        {clinic.contact.phoneSecondaryDisplay}
+                        <span className="ms-2 font-ui text-[0.6875rem] uppercase tracking-wider text-ink-400">
+                          Secondary
+                        </span>
+                      </a>
                     </p>
-                    <PlaceholderBadge className="mt-2" label="Number pending" />
+
+                    {whatsappEnabled && (
+                      <a
+                        href={toWhatsAppHref(clinic.contact.whatsapp)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex items-center gap-2 rounded-full border border-brand-700/25 bg-brand-50 px-3.5 py-1.5 font-ui text-xs font-medium text-brand-800 transition-colors duration-200 hover:bg-brand-100"
+                      >
+                        <RiWhatsappLine aria-hidden="true" className="h-4 w-4" />
+                        Message on WhatsApp
+                        <span className="sr-only">(opens in a new tab)</span>
+                      </a>
+                    )}
                   </div>
                 </li>
 
+                {/* Email */}
                 <li className="flex gap-4">
-                  <RiMailLine aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink" />
+                  <RiMailLine
+                    aria-hidden="true"
+                    className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink"
+                  />
                   <div>
                     <p className="font-ui text-xs uppercase tracking-wider text-ink-500">Email</p>
                     <p className="mt-1 font-body text-sm">
                       <a
                         href={`mailto:${clinic.contact.email}`}
-                        className="text-brand-700 hover:text-brand-800"
+                        className="break-all text-brand-700 hover:text-brand-800"
                       >
                         {clinic.contact.email}
                       </a>
                     </p>
-                    <PlaceholderBadge className="mt-2" label="Email pending" />
                   </div>
                 </li>
               </ul>
-
-              <Alert tone="warning" className="mt-6" title="Placeholder contact details">
-                These details are placeholders and are not connected to the clinic yet. Replace them
-                in <code className="font-mono text-xs">src/content/site.ts</code> before launch.
-              </Alert>
             </div>
 
+            {/* Hours */}
             <div className="card p-7">
               <h2 className="flex items-center gap-2 font-heading text-xl text-ink-900">
                 <RiTimeLine aria-hidden="true" className="h-5 w-5 text-gold-ink" />
                 Opening hours
               </h2>
+
+              <p className="mt-3 font-body text-sm font-medium text-ink-800">{summary}</p>
 
               <dl className="mt-5 divide-y divide-ink-900/8">
                 {hours.map((day) => (
@@ -128,7 +180,9 @@ export default async function ContactPage() {
                     <dd className="font-ui text-sm text-ink-900">
                       {day.closed || !day.open || !day.close
                         ? "Closed"
-                        : `${displayTime(day.open)} – ${displayTime(day.close)}`}
+                        : day.open === "00:00" && day.close === "24:00"
+                          ? "Open 24 hours"
+                          : `${displayTime(day.open)} – ${displayTime(day.close)}`}
                     </dd>
                   </div>
                 ))}
@@ -136,10 +190,7 @@ export default async function ContactPage() {
 
               {!scheduleConfirmed && (
                 <div className="mt-5">
-                  <PlaceholderBadge label="Demo schedule" />
-                  <p className="mt-2 font-body text-xs leading-relaxed text-ink-500">
-                    {clinic.scheduleNotice}
-                  </p>
+                  <PlaceholderBadge label="Schedule being confirmed" />
                 </div>
               )}
             </div>
@@ -149,19 +200,18 @@ export default async function ContactPage() {
               <p className="mt-2 font-body text-sm text-ink-600">
                 {clinic.languages.join(" · ")}
               </p>
-              <PlaceholderBadge className="mt-3" label="To confirm" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Map */}
+      {/* Location */}
       <section className="section bg-white">
         <div className="container-x">
           <SectionHeading
             eyebrow="Find us"
             title="Location"
-            description="A map will be embedded once the clinic's exact address is confirmed."
+            description={`The practice is in ${clinic.contact.addressLine}.`}
           />
 
           <div className="mt-8 overflow-hidden rounded-card border border-ink-900/10">
@@ -174,13 +224,24 @@ export default async function ContactPage() {
                 className="h-[24rem] w-full border-0"
               />
             ) : (
-              <div className="flex h-[24rem] flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,#f2ede5,#e7dfd2)] px-6 text-center">
-                <RiMapPin2Line aria-hidden="true" className="h-8 w-8 text-gold-ink" />
-                <p className="font-heading text-xl text-ink-900">Map placeholder</p>
-                <p className="max-w-md font-body text-sm text-ink-600">
-                  Set <code className="font-mono text-xs">clinic.contact.mapEmbedUrl</code> to a
-                  Google Maps embed URL and it will render here. No address is invented on this
-                  site.
+              <div className="flex min-h-[16rem] flex-col items-center justify-center gap-4 bg-[linear-gradient(135deg,#0b2342,#17466c)] px-6 py-14 text-center">
+                <RiMapPin2Line aria-hidden="true" className="h-8 w-8 text-gold" />
+                <p className="font-heading text-2xl text-white">{clinic.contact.addressLine}</p>
+                {clinic.contact.mapLinkUrl && (
+                  <a
+                    href={clinic.contact.mapLinkUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-gold"
+                  >
+                    <RiExternalLinkLine aria-hidden="true" className="h-4 w-4" />
+                    Open in Google Maps
+                    <span className="sr-only">(opens in a new tab)</span>
+                  </a>
+                )}
+                <p className="max-w-md font-body text-xs text-white/60">
+                  The map opens on Google Maps. No street address is printed on this site, because
+                  none has been supplied by the clinic.
                 </p>
               </div>
             )}

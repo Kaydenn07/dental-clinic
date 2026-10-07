@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 
 import { CtaBand } from "@/components/home/CtaBand";
-import { MediaPlaceholder, PlaceholderBadge, SectionHeading, ValueList } from "@/components/ui/primitives";
-import { aboutContent, facilityContent, teamMembers, values } from "@/content/sections";
+import {
+  MediaPlaceholder,
+  PlaceholderBadge,
+  SectionHeading,
+  ValueList,
+} from "@/components/ui/primitives";
+import { doctor } from "@/content/media";
+import { aboutContent, doctorProfile, facilityContent, values } from "@/content/sections";
 import { clinic, scheduleConfirmed } from "@/content/site";
 
 export const metadata: Metadata = {
@@ -15,54 +21,83 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main>
+      {/* ── Hero: the doctor ─────────────────────────────────────────────── */}
       <section className="bg-ink-900 py-16 text-white sm:py-20">
-        <div className="container-x grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <SectionHeading
-            tone="dark"
-            as="h1"
-            eyebrow={aboutContent.eyebrow}
-            title={aboutContent.title}
-            description={aboutContent.paragraphs[0]}
-          />
+        <div className="container-x grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div>
+            <SectionHeading
+              tone="dark"
+              as="h1"
+              eyebrow={aboutContent.eyebrow}
+              title={aboutContent.title}
+              description={aboutContent.intro}
+            />
 
-          <div className="rounded-card border border-white/10 bg-white/[0.04] p-7 backdrop-blur-sm">
-            <h2 className="font-heading text-xl text-white">At a glance</h2>
-            <dl className="mt-5 space-y-4 font-body text-sm">
-              <div className="flex justify-between gap-6 border-b border-white/10 pb-3">
-                <dt className="text-white/55">Practice</dt>
-                <dd className="text-right text-white/90">{clinic.name}</dd>
-              </div>
-              <div className="flex justify-between gap-6 border-b border-white/10 pb-3">
-                <dt className="text-white/55">Country</dt>
-                <dd className="text-white/90">{clinic.contact.country}</dd>
-              </div>
-              <div className="flex justify-between gap-6 border-b border-white/10 pb-3">
-                <dt className="text-white/55">Languages</dt>
-                <dd className="text-right text-white/90">{clinic.languages.join(" · ")}</dd>
-              </div>
-              <div className="flex justify-between gap-6">
-                <dt className="text-white/55">Opening hours</dt>
-                <dd className="text-white/90">
-                  {scheduleConfirmed ? "Confirmed" : "Being confirmed"}
-                </dd>
-              </div>
-            </dl>
-            {!scheduleConfirmed && (
-              <p className="mt-5">
-                <PlaceholderBadge label="Demo schedule" />
+            {scheduleConfirmed && (
+              <p className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-4 py-2 font-ui text-xs uppercase tracking-[0.18em] text-white/75">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-gold" />
+                Open 24 hours, 7 days a week
               </p>
             )}
           </div>
+
+          {/* Portrait of Dr. Bouamara — replaceable in src/content/media.ts */}
+          <figure className="relative mx-auto w-full max-w-md">
+            <MediaPlaceholder
+              src={doctor.portrait.src}
+              alt={doctor.portrait.alt}
+              label={doctorProfile.name}
+              caption="Portrait pending"
+              icon="◍"
+              priority
+              className="aspect-4/5 w-full rounded-card border border-white/12"
+              imageClassName="object-top"
+              sizes="(min-width: 1024px) 40vw, 100vw"
+            />
+            <figcaption className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <span>
+                <span className="block font-heading text-lg text-white">{doctorProfile.name}</span>
+                <span className="font-ui text-xs uppercase tracking-[0.2em] text-gold/90">
+                  {doctorProfile.role}
+                </span>
+              </span>
+              {!doctor.portrait.src && <PlaceholderBadge label="Photograph pending" />}
+            </figcaption>
+          </figure>
         </div>
       </section>
 
-      {/* Narrative — the remaining placeholder paragraphs, clearly labelled */}
+      {/* ── At a glance (confirmed facts only) ───────────────────────────── */}
+      <section className="bg-cream-100 py-14">
+        <div className="container-x">
+          <dl className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { label: "Practice", value: clinic.name },
+              { label: "Location", value: clinic.contact.addressLine },
+              { label: "Languages", value: clinic.languages.join(" · ") },
+              {
+                label: "Opening hours",
+                value: scheduleConfirmed ? "24 hours, every day" : "Being confirmed",
+              },
+            ].map((item) => (
+              <div key={item.label} className="border-t border-ink-900/12 pt-5">
+                <dt className="font-ui text-[0.6875rem] uppercase tracking-[0.22em] text-ink-500">
+                  {item.label}
+                </dt>
+                <dd className="mt-2 font-heading text-xl text-ink-900">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      {/* ── The practice narrative ───────────────────────────────────────── */}
       <section className="section bg-white">
         <div className="container-x grid gap-12 lg:grid-cols-2 lg:gap-20">
           <div>
             <SectionHeading eyebrow="The practice" title="How we work" />
             <div className="mt-6 space-y-5">
-              {aboutContent.paragraphs.slice(1).map((paragraph) => (
+              {aboutContent.placeholderParagraphs.map((paragraph) => (
                 <p key={paragraph} className="font-body text-base leading-relaxed text-ink-600">
                   {paragraph}
                 </p>
@@ -88,7 +123,7 @@ export default function AboutPage() {
             </div>
 
             <div className="rounded-card border border-gold-ink/25 bg-gold-ink/[0.04] p-7">
-              <h3 className="font-heading text-xl text-ink-900">Equipment & environment</h3>
+              <h3 className="font-heading text-xl text-ink-900">Equipment &amp; environment</h3>
               <p className="mt-3 font-body text-sm leading-relaxed text-ink-600">
                 {facilityContent.body}
               </p>
@@ -98,7 +133,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Values */}
+      {/* ── Values ───────────────────────────────────────────────────────── */}
       <section className="section bg-cream-100">
         <div className="container-x">
           <SectionHeading
@@ -124,47 +159,47 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* ── Practitioner ─────────────────────────────────────────────────── */}
       <section className="section bg-white">
-        <div className="container-x">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="container-x grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
+          <MediaPlaceholder
+            src={doctor.secondary.src}
+            alt={doctor.secondary.alt}
+            label={doctorProfile.name}
+            caption="Photograph pending"
+            icon="◍"
+            className="aspect-4/5 w-full rounded-card border border-ink-900/10"
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            imageClassName="object-cover"
+          />
+
+          <div>
             <SectionHeading
-              eyebrow="The team"
-              title="Practitioners and staff"
-              description="Profiles and qualifications are published only once the clinic has supplied and approved the exact wording."
+              eyebrow="The practitioner"
+              title={doctorProfile.name}
+              description={doctorProfile.role}
             />
-            <PlaceholderBadge label="Profiles pending" />
+
+            <p className="mt-6 font-body text-base leading-relaxed text-ink-600">
+              {doctorProfile.bio ??
+                "A short biography — training, areas of interest and years in practice — will be published here once the clinic has supplied and approved the exact wording."}
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              {doctorProfile.credentials ? (
+                <span className="rounded-full border border-ink-900/12 px-4 py-2 font-ui text-xs uppercase tracking-[0.16em] text-ink-600">
+                  {doctorProfile.credentials}
+                </span>
+              ) : (
+                <PlaceholderBadge label="Qualifications & credentials pending" />
+              )}
+            </div>
+
+            <p className="mt-6 max-w-prose font-body text-xs leading-relaxed text-ink-500">
+              The practice publishes no invented awards, statistics or accreditations. Verified
+              details are added only once the clinic provides them.
+            </p>
           </div>
-
-          <ul className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {teamMembers.map((member) => (
-              <li key={member.id} className="card overflow-hidden">
-                <MediaPlaceholder
-                  src={member.image}
-                  alt={`Portrait of ${member.name}`}
-                  label={member.name}
-                  caption="Portrait pending"
-                  className="aspect-4/5 w-full"
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  icon="◍"
-                />
-                <div className="p-6">
-                  <h3 className="font-heading text-xl text-ink-900">{member.name}</h3>
-                  <p className="mt-1 font-ui text-sm text-brand-700">{member.role}</p>
-
-                  {member.credentials ? (
-                    <p className="mt-1 font-ui text-xs text-ink-500">{member.credentials}</p>
-                  ) : (
-                    <PlaceholderBadge className="mt-4" label="Role & credentials pending" />
-                  )}
-
-                  <p className="mt-4 font-body text-sm leading-relaxed text-ink-600">
-                    {member.bio ?? "Biography to be supplied by the clinic."}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
         </div>
       </section>
 

@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { RiMenuLine, RiCloseLine, RiPhoneLine, RiTimeLine } from "react-icons/ri";
 
 import { Logo } from "@/components/brand/Logo";
-import { clinic, navigation, scheduleConfirmed } from "@/content/site";
+import { clinic, navigation, scheduleSummary } from "@/content/site";
 import { cn, toTelHref } from "@/lib/utils";
 
 /**
@@ -53,9 +53,7 @@ export function SiteHeader() {
         <div className="container-x flex h-10 items-center justify-between font-ui text-xs">
           <p className="flex items-center gap-2 text-white/70">
             <RiTimeLine aria-hidden="true" className="h-3.5 w-3.5 text-gold" />
-            {scheduleConfirmed
-              ? "Opening hours are confirmed"
-              : "Demo schedule in use — opening hours to be confirmed"}
+            {scheduleSummary}
           </p>
           <div className="flex items-center gap-5">
             <a
@@ -64,7 +62,6 @@ export function SiteHeader() {
             >
               <RiPhoneLine aria-hidden="true" className="h-3.5 w-3.5 text-gold" />
               {clinic.contact.phoneDisplay}
-              <span className="sr-only">(placeholder number)</span>
             </a>
             <span className="text-white/40">{clinic.contact.email}</span>
           </div>

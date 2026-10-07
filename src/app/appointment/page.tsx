@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { RiCalendarCheckLine, RiFileTextLine, RiShieldCheckLine } from "react-icons/ri";
 
 import { BookingWizard } from "@/components/booking/BookingWizard";
-import { PlaceholderBadge, SectionHeading, ValueList } from "@/components/ui/primitives";
+import { SectionHeading, ValueList } from "@/components/ui/primitives";
 import { bookingNotice } from "@/content/sections";
-import { clinic, scheduleConfirmed } from "@/content/site";
+import { clinic, scheduleSummary } from "@/content/site";
 import { getPublicServices } from "@/lib/queries/site";
 import { toTelHref } from "@/lib/utils";
 
@@ -90,20 +90,27 @@ export default async function AppointmentPage({
             <div className="card p-7">
               <h2 className="font-heading text-xl text-ink-900">Contact the clinic</h2>
               <p className="mt-2 font-body text-sm leading-relaxed text-ink-600">
-                For urgent problems, call rather than using the form.
+                {scheduleSummary}. For urgent problems, call rather than using the form.
               </p>
-              <p className="mt-4 font-body text-base text-ink-900">
+              <div className="mt-4 space-y-1 font-body text-base text-ink-900">
                 <a
                   href={toTelHref(clinic.contact.phone)}
-                  className="font-medium text-brand-700 hover:text-brand-800"
+                  className="block font-medium text-brand-700 hover:text-brand-800"
                 >
                   {clinic.contact.phoneDisplay}
                 </a>
-                <span className="sr-only"> (placeholder number)</span>
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <PlaceholderBadge label="Phone number pending" />
-                {!scheduleConfirmed && <PlaceholderBadge label="Hours pending" />}
+                <a
+                  href={toTelHref(clinic.contact.phoneSecondary)}
+                  className="block font-medium text-brand-700 hover:text-brand-800"
+                >
+                  {clinic.contact.phoneSecondaryDisplay}
+                </a>
+                <a
+                  href={`mailto:${clinic.contact.email}`}
+                  className="block break-all font-body text-sm text-brand-700 hover:text-brand-800"
+                >
+                  {clinic.contact.email}
+                </a>
               </div>
             </div>
 

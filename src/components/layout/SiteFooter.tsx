@@ -7,14 +7,15 @@ import {
   RiMapPin2Line,
   RiPhoneLine,
   RiMailLine,
+  RiTimeLine,
 } from "react-icons/ri";
 
 import { Logo } from "@/components/brand/Logo";
 import { Hairline, PlaceholderBadge } from "@/components/ui/primitives";
-import { clinic, navigation, scheduleConfirmed } from "@/content/site";
+import { clinic, navigation, scheduleSummary } from "@/content/site";
 import { legalPages } from "@/content/sections";
 import { serviceCategories } from "@/content/services";
-import { toTelHref } from "@/lib/utils";
+import { toTelHref, toWhatsAppHref } from "@/lib/utils";
 
 /** Footer (server component — no interactivity needed). */
 export function SiteFooter() {
@@ -27,7 +28,6 @@ export function SiteFooter() {
     { key: "youtube", href: clinic.social.youtube, label: "YouTube", Icon: RiYoutubeLine },
   ].filter((social): social is typeof social & { href: string } => Boolean(social.href));
 
-  const addressIsPlaceholder = clinic.contact.addressLine.toLowerCase().includes("to be confirmed");
 
   return (
     <footer className="mt-auto bg-ink-900 text-ink-100">
@@ -108,30 +108,40 @@ export function SiteFooter() {
             <ul className="mt-5 space-y-4 font-ui text-sm text-ink-100/75">
               <li className="flex gap-3">
                 <RiMapPin2Line aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-                <span className="space-y-2">
-                  <span className="block">{clinic.contact.addressLine}</span>
-                  {addressIsPlaceholder && <PlaceholderBadge label="Address pending" />}
-                </span>
+                <span className="block">{clinic.contact.addressLine}</span>
               </li>
               <li className="flex gap-3">
                 <RiPhoneLine aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-                <a href={toTelHref(clinic.contact.phone)} className="hover:text-gold">
-                  {clinic.contact.phoneDisplay}
-                  <span className="sr-only"> (placeholder number)</span>
-                </a>
+                <span className="flex flex-col gap-1">
+                  <a href={toTelHref(clinic.contact.phone)} className="hover:text-gold">
+                    {clinic.contact.phoneDisplay}
+                  </a>
+                  <a href={toTelHref(clinic.contact.phoneSecondary)} className="hover:text-gold">
+                    {clinic.contact.phoneSecondaryDisplay}
+                  </a>
+                  {clinic.contact.whatsapp && (
+                    <a
+                      href={toWhatsAppHref(clinic.contact.whatsapp)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-ink-100/60 hover:text-gold"
+                    >
+                      WhatsApp
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  )}
+                </span>
               </li>
               <li className="flex gap-3">
                 <RiMailLine aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-                <a href={`mailto:${clinic.contact.email}`} className="hover:text-gold">
+                <a href={`mailto:${clinic.contact.email}`} className="break-all hover:text-gold">
                   {clinic.contact.email}
-                  <span className="sr-only"> (placeholder address)</span>
                 </a>
               </li>
-              {!scheduleConfirmed && (
-                <li className="pt-1">
-                  <PlaceholderBadge label="Demo opening hours" />
-                </li>
-              )}
+              <li className="flex gap-3">
+                <RiTimeLine aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                <span>{scheduleSummary}</span>
+              </li>
             </ul>
           </div>
         </div>

@@ -4,7 +4,7 @@ import "./globals.css";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { clinic, scheduleConfirmed } from "@/content/site";
+import { clinic, scheduleConfirmed, scheduleSummary } from "@/content/site";
 import { appUrl } from "@/lib/env";
 
 export const metadata: Metadata = {
@@ -13,8 +13,7 @@ export const metadata: Metadata = {
     default: `${clinic.name} — ${clinic.tagline}`,
     template: `%s · ${clinic.name}`,
   },
-  description:
-    "Dr. Bouamara Dental Clinic — general and specialist dental care. Request an appointment online and the clinic will confirm your time. This site is a work in progress: contact details, photography and opening hours are still being confirmed.",
+  description: `${clinic.name} in ${clinic.contact.addressLine} — ${scheduleSummary.toLowerCase()}. Request a dental appointment online and the clinic confirms your time. Call ${clinic.contact.phoneDisplay}.`,
   applicationName: clinic.name,
   keywords: [
     "dental clinic",
@@ -47,21 +46,39 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A2A2E",
+  themeColor: "#0B2342",
   width: "device-width",
   initialScale: 1,
   colorScheme: "light",
 };
 
 /**
- * Structured data.
+ * Structured data (schema.org Dentist).
  *
- * Only fields that are actually known are emitted. Address, telephone and
- * opening hours are intentionally omitted (they are still placeholders) —
- * publishing invented values in JSON-LD would mislead search engines and
- * patients. Re-add them once the clinic confirms its details; see README.
+ * Only facts the clinic has actually provided are emitted: name, email, the two
+ * telephone numbers, the town, the 24/7 opening hours and the Google Maps link.
+ * No street address, price range, rating or founding date is asserted, because
+ * none was supplied — invented values in JSON-LD would mislead search engines
+ * and patients alike.
  */
 function JsonLd() {
+  const openingHoursSpecification = [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+      opens: "00:00",
+      closes: "24:00",
+    },
+  ];
+
   const payload = {
     "@context": "https://schema.org",
     "@type": "Dentist",
@@ -69,6 +86,16 @@ function JsonLd() {
     url: appUrl,
     description: `${clinic.tagline} General and specialist dental care.`,
     availableLanguage: clinic.languages,
+    email: clinic.contact.email,
+    telephone: [clinic.contact.phone, clinic.contact.phoneSecondary],
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: clinic.contact.city,
+      addressCountry: "DZ",
+      ...(clinic.contact.streetAddress ? { streetAddress: clinic.contact.streetAddress } : {}),
+    },
+    ...(clinic.contact.mapLinkUrl ? { hasMap: clinic.contact.mapLinkUrl } : {}),
+    ...(scheduleConfirmed ? { openingHoursSpecification } : {}),
     ...(clinic.foundedYear ? { foundingDate: String(clinic.foundedYear) } : {}),
   };
 
@@ -100,12 +127,11 @@ export default function RootLayout({
         <SiteFooter />
         <JsonLd />
 
-        {!scheduleConfirmed && (
-          <div className="sr-only">
-            Notice: this website is still being completed. Opening hours currently shown are a
-            demonstration schedule, and some contact details are placeholders.
-          </div>
-        )}
+        {/*
+          Screen-reader-only completion notice. Contact details and 24/7 opening
+          hours are now real; the remaining pending content (photography, team
+          profiles, legal wording) is labelled in place, on the page.
+        */}
       </body>
     </html>
   );
