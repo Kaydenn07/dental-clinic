@@ -12,7 +12,9 @@ import type { OpeningHours } from "@/types/content";
  *  Confirmed by the clinic:
  *    • name, email, both phone numbers, WhatsApp number
  *    • opening hours: 24 hours a day, 7 days a week
- *    • city: Djelfa
+ *    • city: Djelfa (the clinic's name includes "Messaouda", which is the
+ *      practitioner's given name — not a place)
+ *    • Facebook page
  *    • Google Maps link
  *
  *  Still outstanding — see `PLACEHOLDER_FIELDS` at the bottom (also listed in
@@ -23,10 +25,12 @@ import type { OpeningHours } from "@/types/content";
 
 export const clinic = {
   name: "Dr. Bouamara Dental Clinic",
+  /** The practitioner's full name, as signed on the clinic's own material. */
+  doctorName: "Dr. Messaouda Bouamara",
   /** Used by the text wordmark when no logo file is configured. */
   wordmark: "Dr. Bouamara",
   shortName: "Dr. Bouamara",
-  monogram: "DB",
+  monogram: "MB",
   tagline: "Precision dentistry, day and night.",
 
   contact: {
@@ -39,15 +43,7 @@ export const clinic = {
     email: "Drbouamara@gmail.com",
     /** WhatsApp is enabled on the secondary number only (digits, E.164). */
     whatsapp: "213671149592",
-    /**
-     * City — confirmed by the clinic: Djelfa.
-     *
-     * Note: the clinic's own printed material and its Facebook page print
-     * "MESSAOUDA" (a town in Djelfa Province). If the practice is in that town
-     * rather than the city itself, change `addressLine` to
-     * "Messaouda, Djelfa, Algeria" — one line, and it updates everywhere
-     * (header, footer, contact page, metadata and structured data).
-     */
+    /** City confirmed by the clinic; the street address has not been supplied. */
     city: "Djelfa",
     country: "Algeria",
     addressLine: "Djelfa, Algeria",
@@ -63,12 +59,10 @@ export const clinic = {
     mapEmbedUrl: null as string | null,
   },
 
-  /**
-   * Social profiles — `null` hides the icon entirely.
-   * The Facebook page is the clinic's own account, supplied by the clinic.
-   */
+  /** Social profiles — `null` hides the icon entirely. */
   social: {
     instagram: null as string | null,
+    /** The clinic's own Facebook page. */
     facebook: "https://www.facebook.com/drbouamaramessaouda" as string | null,
     tiktok: null as string | null,
     youtube: null as string | null,
@@ -139,8 +133,7 @@ export const clinicClosure: { from: string; to: string; reason: string } | null 
  */
 export const PLACEHOLDER_FIELDS = [
   "clinic.contact.streetAddress",
-  "clinic.social.instagram",
-  "clinic.social.youtube",
+  "clinic.social (Instagram / TikTok / YouTube)",
   "media.brand.logo",
   "media.doctor.portrait",
   "media.facility",

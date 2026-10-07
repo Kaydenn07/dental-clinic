@@ -24,7 +24,7 @@ anything still unknown is a clearly-marked placeholder.
 | Admin dashboard | ✅ Custom, protected, with live KPIs, an hours editor and a readiness report |
 | Supabase architecture | ✅ Schema, RLS, constraints, views, seed SQL included (project not created yet) |
 | Authentication | ✅ Supabase Auth wired; demo session available for local preview |
-| Clinic identity & contact | ✅ Real: name, both phone numbers, WhatsApp, email, town, Google Maps link |
+| Clinic identity & contact | ✅ Real: name, both phone numbers, WhatsApp, email, Facebook, town (Djelfa), Google Maps link |
 | Opening hours | ✅ Real: **24 hours a day, 7 days a week** — editable in the dashboard |
 | Logo | ✅ Built-in navy/gold mark + typographic lockup; drop in the artwork files to use the exported logo instead (§8) |
 | Photography, practitioner profiles, reviews, legal wording | ⚠️ Labelled placeholders — no stock imagery and no invented content |
@@ -232,10 +232,10 @@ never reach the browser.
 | What | Where |
 |---|---|
 | **Logo artwork** | Save the exported files in `public/brand/`, then set `brand.logoLight` / `logoDark` / `markLight` / `markDark` in `src/content/media.ts`. Until then a built-in navy/gold tooth-and-smile mark plus a typographic lockup is used (`src/components/brand/{Logo,BrandMark,mark}.tsx`, favicon `src/app/icon.svg`). |
-| Clinic name, tagline, phone, email, WhatsApp, town, Maps link, social profiles | `src/content/site.ts` |
+| Clinic name, tagline, phone, email, WhatsApp, town, Maps link | `src/content/site.ts` |
 | Opening hours | **Admin → Opening hours** (or `src/content/site.ts` for the built-in default) |
 | **Photographs** | Save files in `public/media/`, then set the path in `src/content/media.ts` — doctor portrait, facility gallery, before/after results, TV-appearance still |
-| **TV interview link** | `src/content/sections.ts` → `mediaAppearances[].videoUrl` — the button activates and opens YouTube in a new tab; nothing is embedded |
+| **TV interview link** | `src/content/sections.ts` → `mediaAppearances[].videoUrl` (currently the clinic's YouTube link, timestamped). The button opens YouTube in a new tab; nothing is embedded |
 | Treatments, categories, durations | `src/content/services.ts` |
 | Page copy, values, practitioner bio, FAQ, reviews | `src/content/sections.ts` |
 | Legal pages | `src/app/legal/[slug]/page.tsx` — placeholder wording, needs review |

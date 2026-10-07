@@ -1,3 +1,5 @@
+import { generatedMedia } from "@/content/media.generated";
+
 /**
  * ============================================================================
  *  MEDIA REGISTRY — every image path in the project lives here
@@ -88,13 +90,14 @@ export const doctor: {
   secondary: PortraitAsset;
 } = {
   portrait: {
-    src: null,
-    alt: "Dr. Bouamara",
-    position: "50% 22%",
+    // Produced by `npm run media:setup` from the clinic's own photograph.
+    src: generatedMedia.doctorPortrait,
+    alt: "Dr. Messaouda Bouamara",
+    position: "50% 18%",
   },
   secondary: {
     src: null,
-    alt: "Dr. Bouamara at the clinic",
+    alt: "Dr. Messaouda Bouamara at the clinic",
     position: "50% 40%",
   },
 };
@@ -104,14 +107,22 @@ export const doctor: {
  * Suggested files: public/media/facility/reception.jpg, treatment-room.jpg,
  * sterilisation.jpg, equipment.jpg, waiting-area.jpg, scanning.jpg
  */
-export const facility: FacilityPhoto[] = [
-  { id: "gal-reception", title: "Reception", caption: "Photo pending", src: null },
-  { id: "gal-room-1", title: "Treatment room", caption: "Photo pending", src: null },
-  { id: "gal-sterilisation", title: "Sterilisation area", caption: "Photo pending", src: null },
-  { id: "gal-equipment", title: "Equipment", caption: "Photo pending", src: null },
-  { id: "gal-waiting", title: "Waiting area", caption: "Photo pending", src: null },
-  { id: "gal-scan", title: "Digital scanning", caption: "Photo pending", src: null },
+const FACILITY_SLOTS: { id: string; title: string }[] = [
+  { id: "gal-reception", title: "Reception" },
+  { id: "gal-room-1", title: "Treatment room" },
+  { id: "gal-sterilisation", title: "Sterilisation area" },
+  { id: "gal-equipment", title: "Equipment" },
+  { id: "gal-waiting", title: "Waiting area" },
+  { id: "gal-scan", title: "Digital scanning" },
 ];
+
+export const facility: FacilityPhoto[] = FACILITY_SLOTS.map((slot) => ({
+  ...slot,
+  caption: generatedMedia.facility.some((photo) => photo.id === slot.id)
+    ? "Photographed at the clinic."
+    : "Photo pending",
+  src: generatedMedia.facility.find((photo) => photo.id === slot.id)?.src ?? null,
+}));
 
 /**
  * ── Treatment results ───────────────────────────────────────────────────────
@@ -124,35 +135,27 @@ export const facility: FacilityPhoto[] = [
  * Captions stay neutral on purpose: no treatment counts, durations or outcome
  * claims are stated, because none were provided.
  */
-export const results: ResultCase[] = [
-  {
-    id: "case-01",
-    title: "Case 01",
-    caption: "Frontal view, before and after.",
-    before: null,
-    after: null,
-    composite: null,
-    consentOnFile: true,
-  },
-  {
-    id: "case-02",
-    title: "Case 02",
-    caption: "Extra-oral view with a wide smile, before and after.",
-    before: null,
-    after: null,
-    composite: null,
-    consentOnFile: true,
-  },
-  {
-    id: "case-03",
-    title: "Case 03",
-    caption: "Smile view, before and after.",
-    before: null,
-    after: null,
-    composite: null,
-    consentOnFile: true,
-  },
-];
+const RESULT_CAPTIONS: Record<string, string> = {
+  "case-01": "Extra-oral view with a wide smile, before and after.",
+  "case-02": "Smile view, before and after.",
+  "case-03": "Frontal view, before and after.",
+  "case-04": "Lateral view, before and after.",
+};
+
+/**
+ * Each case is the clinic's own before/after sheet (a composite), because that
+ * is how the material was supplied. `before`/`after` stay available for the
+ * day separate files exist.
+ */
+export const results: ResultCase[] = generatedMedia.results.map((item, index) => ({
+  id: item.id,
+  title: `Case ${String(index + 1).padStart(2, "0")}`,
+  caption: RESULT_CAPTIONS[item.id] ?? "Before and after.",
+  before: null,
+  after: null,
+  composite: item.composite,
+  consentOnFile: true,
+}));
 
 /** Standard, honest disclaimer required next to clinical photography. */
 export const resultsDisclaimer =
@@ -163,7 +166,7 @@ export const resultsDisclaimer =
  * Optional still from the television appearance.
  * Suggested file: public/media/appearances/nabd-el-seha.jpg
  */
-export const appearanceThumbnail: string | null = null;
+export const appearanceThumbnail: string | null = generatedMedia.appearanceStill;
 
 /** `true` when at least one real photograph is wired up. */
 export const hasAnyMedia = (): boolean =>

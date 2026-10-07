@@ -19,8 +19,10 @@ export const metadata: Metadata = {
     "dental clinic",
     "dentist",
     "dental appointment",
+    "Dr. Messaouda Bouamara",
     "Dr. Bouamara",
-    "clinic dentaire",
+    "clinique dentaire",
+    "Djelfa",
   ],
   authors: [{ name: clinic.name }],
   openGraph: {

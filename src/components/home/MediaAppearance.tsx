@@ -25,7 +25,7 @@ export function MediaAppearanceSection() {
         <SectionHeading
           eyebrow="On air"
           title="Dr. Bouamara on television"
-          description="A television appearance discussing dentistry and sport."
+          description="Dr. Messaouda Bouamara speaking about dentistry and sport."
         />
 
         <div className="mt-12 space-y-6">

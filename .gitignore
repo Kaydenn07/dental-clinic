@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local demo data store (appointments / messages)
 /.data
+
+# original clinic photographs (processed into public/media by npm run media:setup)
+/media-source

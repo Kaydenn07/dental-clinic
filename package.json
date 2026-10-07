@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint",
-    "db:seed-hint": "echo \"Run the SQL files in ./supabase/migrations inside the Supabase SQL editor.\""
+    "db:seed-hint": "echo \"Run the SQL files in ./supabase/migrations inside the Supabase SQL editor.\"",
+    "media:setup": "node scripts/media-setup.mjs"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",

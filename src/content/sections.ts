@@ -73,14 +73,17 @@ export const values: ValueItem[] = [
 /**
  * The practitioner.
  *
- * Only the name is confirmed. Qualifications, special interests and a biography
- * must be supplied and approved by the clinic — inventing credentials on a
- * medical site is unacceptable. Until then the About page shows the portrait
- * with a clearly-marked "credentials pending" note.
+ * The name is confirmed by the clinic's own material ("Dr. Messaouda Bouamara"
+ * — Messaouda is her given name, which is why it appears in the clinic's
+ * signature, e.g. "Dr. Bouamara · Messaouda"). Qualifications, special
+ * interests and a biography must still be supplied and approved by the clinic —
+ * inventing credentials on a medical site is unacceptable. Until then the About
+ * page shows the portrait with a clearly-marked "credentials pending" note.
  */
 export const doctorProfile = {
   id: "dr-bouamara",
-  name: "Dr. Bouamara",
+  name: "Dr. Messaouda Bouamara",
+  shortName: "Dr. Bouamara",
   role: "Dentist",
   /** e.g. "DDS, MSc Implantology" — must come from the clinic. */
   credentials: null as string | null,
@@ -123,9 +126,9 @@ export const mediaAppearances: MediaAppearance[] = [
     topic: "جراحة الأسنان والرياضة",
     topicTranslation: "Dental surgery and sport",
     /**
-     * Official link supplied by the clinic, starting at her part of the
-     * programme. It opens on YouTube in a new tab — the video is never embedded
-     * on this site.
+     * Official link supplied by the clinic — the timestamp is the moment the
+     * segment begins. It opens on YouTube in a new tab; the video is never
+     * embedded on this site.
      */
     videoUrl: "https://www.youtube.com/watch?v=08k-7ALuaQY&t=1230s",
     thumbnail: appearanceThumbnail,
