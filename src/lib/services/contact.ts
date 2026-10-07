@@ -59,7 +59,7 @@ export async function createContactMessage(input: ContactInput): Promise<ActionR
       <p style="margin:0 0 8px;color:#5e8f8b;font-size:13px;">Subject: ${record.subject}</p>
       <p style="margin:16px 0 0;line-height:1.6;white-space:pre-line;">${record.message}</p>
       <p style="margin:20px 0 0;font-size:13px;">
-        <a href="${appUrl}/admin/messages" style="color:#0f5c55;">Open the inbox</a>
+        <a href="${appUrl}/admin/messages" style="color:#1a5788;">Open the inbox</a>
       </p>
     `),
     text: `${record.name} <${record.email}>\nSubject: ${record.subject}\n\n${record.message}`,

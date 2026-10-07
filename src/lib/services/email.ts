@@ -70,10 +70,10 @@ export async function sendEmail(message: EmailMessage): Promise<EmailResult> {
 export function emailShell(bodyHtml: string): string {
   return `<!doctype html>
 <html lang="en">
-  <body style="margin:0;background:#faf8f5;padding:24px;font-family:Montserrat,Arial,sans-serif;color:#0a2a2e;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e7dfd2;">
+  <body style="margin:0;background:#fafaf8;padding:24px;font-family:Montserrat,Arial,sans-serif;color:#0b2342;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e8e8e3;">
       <tr>
-        <td style="background:#0a2a2e;padding:24px 28px;">
+        <td style="background:#0b2342;padding:24px 28px;">
           <p style="margin:0;color:#c2a06b;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;">Dr. Bouamara Dental Clinic</p>
         </td>
       </tr>
@@ -83,8 +83,8 @@ export function emailShell(bodyHtml: string): string {
         </td>
       </tr>
       <tr>
-        <td style="padding:18px 28px;background:#faf8f5;border-top:1px solid #e7dfd2;">
-          <p style="margin:0;font-size:12px;color:#5e8f8b;">
+        <td style="padding:18px 28px;background:#fafaf8;border-top:1px solid #e8e8e3;">
+          <p style="margin:0;font-size:12px;color:#4a7396;">
             Automated message from ${appUrl}. Please do not reply directly to this address unless
             a reply-to contact is listed above.
           </p>
@@ -114,10 +114,10 @@ export function appointmentRequestPatientEmail(params: {
         <strong>your slot is not confirmed yet</strong>. We will contact you to confirm or to offer
         an alternative time.
       </p>
-      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e7dfd2;border-radius:12px;padding:8px;">
-        <tr><td style="padding:8px 12px;font-size:13px;color:#5e8f8b;">Reference</td><td style="padding:8px 12px;font-weight:600;">${reference}</td></tr>
-        <tr><td style="padding:8px 12px;font-size:13px;color:#5e8f8b;">Service</td><td style="padding:8px 12px;">${serviceTitle}</td></tr>
-        <tr><td style="padding:8px 12px;font-size:13px;color:#5e8f8b;">Requested time</td><td style="padding:8px 12px;">${whenLabel}</td></tr>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border:1px solid #e8e8e3;border-radius:12px;padding:8px;">
+        <tr><td style="padding:8px 12px;font-size:13px;color:#4a7396;">Reference</td><td style="padding:8px 12px;font-weight:600;">${reference}</td></tr>
+        <tr><td style="padding:8px 12px;font-size:13px;color:#4a7396;">Service</td><td style="padding:8px 12px;">${serviceTitle}</td></tr>
+        <tr><td style="padding:8px 12px;font-size:13px;color:#4a7396;">Requested time</td><td style="padding:8px 12px;">${whenLabel}</td></tr>
       </table>
       <p style="margin:16px 0 0;line-height:1.6;">
         If anything above is wrong, simply reply to this message or call the clinic.
@@ -169,14 +169,14 @@ export function appointmentClinicNotificationEmail(params: {
         ${rows
           .map(
             ([label, value]) => `<tr>
-          <td style="padding:8px 0;font-size:13px;color:#5e8f8b;width:130px;vertical-align:top;">${label}</td>
+          <td style="padding:8px 0;font-size:13px;color:#4a7396;width:130px;vertical-align:top;">${label}</td>
           <td style="padding:8px 0;font-weight:500;">${value}</td>
         </tr>`,
           )
           .join("")}
       </table>
       <p style="margin:16px 0 0;">
-        <a href="${appUrl}/admin/appointments" style="display:inline-block;background:#0f5c55;color:#ffffff;padding:12px 20px;border-radius:999px;text-decoration:none;font-size:14px;">
+        <a href="${appUrl}/admin/appointments" style="display:inline-block;background:#1a5788;color:#ffffff;padding:12px 20px;border-radius:999px;text-decoration:none;font-size:14px;">
           Open the dashboard
         </a>
       </p>

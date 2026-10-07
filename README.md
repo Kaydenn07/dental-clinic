@@ -13,25 +13,25 @@ booking engine, authentication and dashboard are new.
 
 ## 1. Current status — read this first
 
-The site is a **complete, working foundation**, not a finished clinic website.
-Real clinic information was deliberately **not invented**. Anything unknown is a
-clearly-marked placeholder.
+The site is a **complete, working clinic website**. Real clinic information was
+supplied by the practice and is used everywhere; nothing else was invented —
+anything still unknown is a clearly-marked placeholder.
 
 | Area | State |
 |---|---|
 | Public website (6 pages + legal) | ✅ Built, responsive, accessible, builds cleanly |
-| Appointment system | ✅ Real slot generation, conflict detection, validation, persistence |
-| Admin dashboard | ✅ Custom, protected, with live KPIs and a readiness report |
+| Appointment system | ✅ 24/7 availability, real slot generation, conflict detection, validation, persistence |
+| Admin dashboard | ✅ Custom, protected, with live KPIs, an hours editor and a readiness report |
 | Supabase architecture | ✅ Schema, RLS, constraints, views, seed SQL included (project not created yet) |
 | Authentication | ✅ Supabase Auth wired; demo session available for local preview |
-| Clinic name / logo | ⚠️ Text wordmark `Dr. Bouamara` — final logo still to be supplied |
-| Phone, email, address, hours | ⚠️ Placeholders, labelled as such across the UI |
-| Photography | ⚠️ Branded placeholders (no stock imagery is bundled — see §10) |
-| Practitioner profiles, reviews, policies | ⚠️ Placeholder slots, no invented content |
+| Clinic identity & contact | ✅ Real: name, both phone numbers, WhatsApp, email, town, Google Maps link |
+| Opening hours | ✅ Real: **24 hours a day, 7 days a week** — editable in the dashboard |
+| Logo | ✅ Built-in navy/gold mark + typographic lockup; drop in the artwork files to use the exported logo instead (§8) |
+| Photography, practitioner profiles, reviews, legal wording | ⚠️ Labelled placeholders — no stock imagery and no invented content |
 
-Every placeholder is tracked in `src/content/site.ts` → `PLACEHOLDER_FIELDS` and
-listed in the dashboard (**Settings → Content still needed**) and on the overview
-(**Site readiness**).
+Every remaining placeholder is tracked in `src/content/site.ts` → `PLACEHOLDER_FIELDS`
+and in `src/content/media.ts`, and is listed in the dashboard
+(**Settings → Content still needed**) and on the overview (**Site readiness**).
 
 ---
 
@@ -118,11 +118,15 @@ content file for a database table never requires touching a component.
 
 | Token | Value | Notes |
 |---|---|---|
-| `ink` | `#0A2A2E` → `#061B1E` | Deep teal-black for dark sections, admin sidebar |
-| `brand` | `#0F5C55` (50–950 scale) | Primary teal; 7.8:1 on white |
-| `gold` | `#C2A06B` | Decorative only — 2.4:1 on white |
+| `ink` | `#0B2342` (`900`) → `#4A7396` (`400`) | Deep navy for dark sections, admin sidebar; 15.75:1 on white |
+| `brand` | `#1A5788` (50–950 scale) | Refined dental blue; 7.6:1 on white |
+| `gold` | `#C2A06B` | Champagne accent — decorative (2.4:1 on white, 6.4:1 on navy) |
 | `gold.ink` | `#8A6D3A` | Accessible gold for text (4.85:1 on white) |
-| `cream` | `#FAF8F5` | Page canvas |
+| `cream` | `#FAFAF8` | Warm-white page canvas |
+
+There is **no green anywhere** in the palette: deep navy is the primary colour,
+dental blue carries actions, warm white is the canvas and champagne gold is used
+sparingly for accents (rules, eyebrow ticks, the smile arc in the mark).
 | Fonts | Cormorant Garamond (display) + Montserrat (UI/body) | Self-hosted via `@fontsource` — no Google Fonts at build or runtime |
 | Motion | CSS reveal utilities + `Reveal` component + Framer Motion for interaction | `prefers-reduced-motion` fully respected |
 
@@ -144,24 +148,32 @@ Not a fake form — a working engine:
 1. **Slot generation** (`lib/booking/slots.ts`, pure and unit-testable): opening
    hours + appointment duration + turnaround produce candidate slots; a slot that
    would run past closing time is never offered.
-2. **Rules**: minimum notice (`minimumNoticeHours`), booking horizon
-   (`horizonDays`), closed days skipped, lead-time/booked/closure reasons.
-3. **Blocking data**: existing `pending`/`confirmed` appointments and clinic
+2. **Availability is 24/7.** The clinic is open every day, around the clock, so
+   all 48 half-hour slots of every day are offered. Opening hours are resolved in
+   exactly one place — `lib/services/hours.ts` (`getOpeningHours()`) — which reads
+   Supabase `opening_hours` when configured, otherwise the local demo store,
+   otherwise the typed default in `src/content/site.ts`. The dashboard editor
+   (**Admin → Opening hours**) writes to the same source, so nothing is hard-coded
+   in any component. `00:00 → 24:00` is the canonical full-day value: it expands
+   to 00:00–23:30 and the closing-time guard correctly allows a 23:30 slot.
+3. **Rules**: minimum notice (`minimumNoticeHours`, now 1 h — a courtesy buffer,
+   not an opening-hours limit), booking horizon (`horizonDays`), closed days
+   skipped, lead-time/booked/closure reasons.
+4. **Blocking data**: existing `pending`/`confirmed` appointments and clinic
    closures. Patients read only the `appointment_slots` / `time_off_slots`
    **views**, which expose time ranges and no patient data.
-4. **Server-side authority**: `checkSlotBookable()` re-validates the requested
+5. **Server-side authority**: `checkSlotBookable()` re-validates the requested
    slot at submission. The client is never trusted.
-5. **Concurrency**: at the database level an *exclusion constraint* rejects
+6. **Concurrency**: at the database level an *exclusion constraint* rejects
    overlapping blocking appointments, so two simultaneous requests cannot both
    win. The service maps both `23505` and `23P01` to a friendly message.
-6. **Notifications**: patient confirmation + clinic notification via Resend
+7. **Notifications**: patient confirmation + clinic notification via Resend
    (`fetch`, no SDK). Best-effort — a mail failure never loses a booking.
-7. **Abuse protection**: Zod validation, per-IP rate limiting, honeypot field.
+8. **Abuse protection**: Zod validation, per-IP rate limiting, honeypot field.
 
 Time zones are handled with `Intl` (no date library): every instant is stored as
-UTC, and all wall-clock values are interpreted in
-`NEXT_PUBLIC_CLINIC_TIME_ZONE` (default `Africa/Algiers`, currently a
-**placeholder to confirm**).
+UTC, and all wall-clock values are interpreted in `NEXT_PUBLIC_CLINIC_TIME_ZONE`
+(default `Africa/Algiers`).
 
 > **Requests vs bookings:** the site is explicit that submitting a request does
 > not reserve a slot until the clinic confirms it.
@@ -177,6 +189,7 @@ Custom-built (the template had none), at `/admin`:
 | **Overview** | Today's count, awaiting confirmation, upcoming 7 days, unread messages, today's schedule, next appointments, **Site readiness** report, operational reminders |
 | **Appointments** | Filters by status, grouped by clinic-local day, status updates, staff-only internal notes, patient contact links |
 | **Messages** | Contact-form inbox, read/unread toggling, subject badges |
+| **Opening hours** | One-click 24/7 preset, per-day open/close editor, closed-day toggles — writes to Supabase `opening_hours` (or the demo store) and takes effect site-wide |
 | **Settings & setup** | Live environment status, step-by-step Supabase setup, placeholder inventory, security notes |
 
 Details that matter:
@@ -218,17 +231,24 @@ never reach the browser.
 
 | What | Where |
 |---|---|
-| **Logo** | `src/components/brand/Logo.tsx` — one component used by the header, footer, sign-in and sidebar. Drop files in `public/brand/` and render an `<Image>` there. |
-| Clinic name, tagline, phone, email, address, socials, hours | `src/content/site.ts` |
+| **Logo artwork** | Save the exported files in `public/brand/`, then set `brand.logoLight` / `logoDark` / `markLight` / `markDark` in `src/content/media.ts`. Until then a built-in navy/gold tooth-and-smile mark plus a typographic lockup is used (`src/components/brand/{Logo,BrandMark,mark}.tsx`, favicon `src/app/icon.svg`). |
+| Clinic name, tagline, phone, email, WhatsApp, town, Maps link | `src/content/site.ts` |
+| Opening hours | **Admin → Opening hours** (or `src/content/site.ts` for the built-in default) |
+| **Photographs** | Save files in `public/media/`, then set the path in `src/content/media.ts` — doctor portrait, facility gallery, before/after results, TV-appearance still |
+| **TV interview link** | `src/content/sections.ts` → `mediaAppearances[].videoUrl` — the button activates and opens YouTube in a new tab; nothing is embedded |
 | Treatments, categories, durations | `src/content/services.ts` |
-| Page copy, values, team, FAQ, reviews, gallery | `src/content/sections.ts` |
-| Photos | `public/media/` (see its README), then set `image` on the content entry |
+| Page copy, values, practitioner bio, FAQ, reviews | `src/content/sections.ts` |
 | Legal pages | `src/app/legal/[slug]/page.tsx` — placeholder wording, needs review |
-| Structured data (address/phone/hours) | `src/app/layout.tsx` — re-add the omitted fields once confirmed |
+| Structured data | `src/app/layout.tsx` — name, email, both phones, town, Maps link and 24/7 hours are already emitted; the street address is added automatically once set |
 | Booking policy (notice, horizon, slot step, time zone) | `src/lib/booking/config.ts` |
 
 After adding real content, clear the corresponding entries from
 `PLACEHOLDER_FIELDS` — the site readiness panel will reflect it.
+
+**Consent.** Before/after photographs are only rendered for cases flagged
+`consentOnFile: true` in `src/content/media.ts`, together with a standing
+disclaimer. Keep that flag honest: it is the site's record that documented
+patient consent exists.
 
 ---
 
@@ -259,9 +279,10 @@ Before going live:
   They were **removed** and are no longer part of this repository. Do not
   reintroduce stock imagery without a licence; see `public/media/README.md` for
   the rights and consent rules that apply to clinic and patient photography.
-- **Content:** all clinic-facing content in this repository is placeholder copy.
-  It makes no medical, outcome or accreditation claims, and contains no invented
-  practitioners, credentials or reviews.
+- **Content:** clinic identity, contact details and 24/7 opening hours were
+  supplied by the practice. Everything else is placeholder copy that makes no
+  medical, outcome or accreditation claims, and lists no invented practitioners,
+  credentials, reviews or awards.
 
 ---
 
@@ -282,10 +303,10 @@ Before going live:
    `@fontsource/*-arabic` subsets and RTL support.
 7. **Reminders** (SMS/WhatsApp, e.g. 24 h before) are not implemented; a
    `pg_cron` job or Edge Function fits the current schema.
-8. **Gallery/services management UI** is read-only so far — the dashboard lists
-   content readiness, but CRUD screens for services, hours, team and media are
-   the next dashboard milestone (the tables and RLS policies are already in
-   place).
+8. **Remaining dashboard CRUD.** Opening hours are editable (**Admin → Opening
+   hours**); services, team and media editing are the next milestone — their
+   tables and RLS policies already exist. Until then those are edited in
+   `src/content/*.ts` and `src/content/media.ts`.
 9. **Residual npm advisories** are limited to the build toolchain (Tailwind v3's
    `chokidar`/`braces`/`micromatch`, ESLint plugins). None ship to the runtime;
    the Next.js critical advisories were resolved by the upgrade to 15.5.27.
