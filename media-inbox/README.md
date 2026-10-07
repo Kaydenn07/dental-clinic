@@ -5,9 +5,11 @@ build environment**, so they cannot be processed. Files uploaded here *do* arriv
 
 ## How to use it
 
-1. Open this folder on GitHub:
-   <https://github.com/Kaydenn07/dental-clinic/tree/main/media-inbox>
-2. Click **Add file → Upload files**.
+1. Open this folder on GitHub — note the branch in the URL
+   (`arena/028af228-dental-clinic`, the branch this site is being built on):
+   <https://github.com/Kaydenn07/dental-clinic/tree/arena/028af228-dental-clinic/media-inbox>
+2. Click **Add file → Upload files**. If GitHub shows the `main` branch in the
+   branch selector, switch it to `arena/028af228-dental-clinic` first.
 3. Drag the photos in (all of them at once is fine) and click **Commit changes**.
 4. Leave the default file names if you like — nothing else is needed.
 
