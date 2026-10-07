@@ -99,8 +99,13 @@ export const doctor: {
     position: "50% 18%",
   },
   secondary: {
-    src: null,
-    alt: "Dr. Messaouda Bouamara at the clinic",
+    /**
+     * The practitioner block further down the About page. Until a second
+     * photograph of Dr. Bouamara exists, it shows the practice rather than an
+     * empty frame — never a stand-in presented as her.
+     */
+    src: "/media/clinic/practice-hero.jpg",
+    alt: "A treatment room at the practice, with navy cabinetry and a modern dental chair",
     position: "50% 40%",
   },
 };
@@ -193,7 +198,12 @@ export interface ServiceImage {
 export const serviceImages: Record<string, ServiceImage> = {
   "check-up-and-cleaning": {
     src: "/media/services/check-up-and-cleaning.jpg",
-    alt: "Gloved hands holding a dental mouth mirror and probe over a tray of dental instruments",
+    alt: "A sterile tray of dental hygiene instruments — mouth mirror, probes and scaler",
+    illustrative: true,
+  },
+  "dental-sealants": {
+    src: "/media/services/dental-sealants.jpg",
+    alt: "Sealant being applied to the chewing surface of a molar model",
     illustrative: true,
   },
   "teeth-whitening": {
@@ -201,9 +211,49 @@ export const serviceImages: Record<string, ServiceImage> = {
     alt: "A dental shade guide of ceramic tabs graded from cream to bright white",
     illustrative: true,
   },
+  "composite-bonding": {
+    src: "/media/services/composite-bonding.jpg",
+    alt: "Composite resin syringes, an applicator tip and a curing light on a navy surface",
+    illustrative: true,
+  },
   veneers: {
     src: "/media/services/veneers.jpg",
     alt: "Thin ceramic veneers resting on a white tray",
+    illustrative: true,
+  },
+  "dental-implants": {
+    src: "/media/services/dental-implants.jpg",
+    alt: "A titanium dental implant, abutment and healing cap on a ceramic holder",
+    illustrative: true,
+  },
+  crowns: {
+    src: "/media/services/crowns.jpg",
+    alt: "A glazed ceramic crown and inlay on a white tray",
+    illustrative: true,
+  },
+  bridges: {
+    src: "/media/services/bridges.jpg",
+    alt: "A three-unit ceramic dental bridge on a plaster model of a jaw",
+    illustrative: true,
+  },
+  "clear-aligners": {
+    src: "/media/services/clear-aligners.jpg",
+    alt: "Transparent clear aligner trays fitted on a model of a jaw",
+    illustrative: true,
+  },
+  "fixed-braces": {
+    src: "/media/services/fixed-braces.jpg",
+    alt: "Metal orthodontic brackets and an archwire on a model of a jaw",
+    illustrative: true,
+  },
+  "childrens-dentistry": {
+    src: "/media/services/childrens-dentistry.jpg",
+    alt: "A child's toothbrush, a plain toothpaste tube, a tooth model and a glass tumbler",
+    illustrative: true,
+  },
+  "space-maintainers": {
+    src: "/media/services/space-maintainers.jpg",
+    alt: "A stainless steel orthodontic space maintainer appliance on a white dish",
     illustrative: true,
   },
 };

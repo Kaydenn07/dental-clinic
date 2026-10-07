@@ -172,7 +172,8 @@ export default function AboutPage() {
             src={doctor.secondary.src}
             alt={doctor.secondary.alt}
             label={doctorProfile.name}
-            caption="Photograph pending"
+            caption="A view of the practice"
+            tag="Illustrative image"
             icon="◍"
             className="aspect-4/5 w-full rounded-card border border-ink-900/10"
             sizes="(min-width: 1024px) 40vw, 100vw"
