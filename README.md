@@ -58,6 +58,19 @@ typed content files and appointment requests are written to a local demo store
 | `npm run lint` | ESLint (next/core-web-vitals + next/typescript) |
 | `npm run check` | Typecheck + lint together |
 
+### Environment variables
+
+Copy the template and fill in what you need — nothing is required to run the
+project:
+
+```bash
+cp .env.example .env.local
+```
+
+`.env.example` documents every variable (Supabase, notification email, optional
+mail provider, admin demo access). `.env.local` is git-ignored and must never be
+committed.
+
 ### Opening the dashboard locally
 
 Without Supabase, the dashboard is **locked by design**. To preview it:
