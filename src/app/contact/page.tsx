@@ -1,303 +1,192 @@
-'use client';
+import type { Metadata } from "next";
+import { RiMailLine, RiMapPin2Line, RiPhoneLine, RiTimeLine } from "react-icons/ri";
 
-import { useState } from "react";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { RiMapPin2Line, RiPhoneLine, RiMailLine, RiTimeLine, RiInstagramLine, RiFacebookLine, RiTwitterXLine } from 'react-icons/ri';
+import { ContactForm } from "@/components/contact/ContactForm";
+import { Alert, PlaceholderBadge, SectionHeading } from "@/components/ui/primitives";
+import { clinic, scheduleConfirmed } from "@/content/site";
+import { getOpeningHours } from "@/lib/queries/site";
+import { toTelHref } from "@/lib/utils";
 
-const businessHours = [
-  { day: "Monday", hours: "9:00 AM - 6:00 PM" },
-  { day: "Tuesday", hours: "9:00 AM - 6:00 PM" },
-  { day: "Wednesday", hours: "9:00 AM - 6:00 PM" },
-  { day: "Thursday", hours: "9:00 AM - 6:00 PM" },
-  { day: "Friday", hours: "9:00 AM - 4:00 PM" },
-  { day: "Saturday", hours: "By Appointment" },
-  { day: "Sunday", hours: "Closed" }
-];
+export const metadata: Metadata = {
+  title: "Contact",
+  description:
+    "Contact Dr. Bouamara Dental Clinic: send a message, request an appointment, or find the practice. Contact details and opening hours are still being confirmed.",
+  alternates: { canonical: "/contact" },
+};
 
-export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: ""
-  });
+/** Formats "09:00" → "9:00 AM" for display. */
+function displayTime(value: string | null): string {
+  if (!value) return "—";
+  const [hour, minute] = value.split(":").map(Number);
+  return new Intl.DateTimeFormat("en-GB", {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(2000, 0, 1, hour ?? 0, minute ?? 0)));
+}
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+export default async function ContactPage() {
+  const hours = await getOpeningHours();
+  const addressIsPlaceholder = clinic.contact.addressLine.toLowerCase().includes("to be confirmed");
 
   return (
     <main>
-      {/* Hero Section */}
-      <section className="relative py-20 bg-black">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/assets/images/contact-hero.jpg"
-            alt="Contact WhitePearl Dental"
-            fill
-            className="object-cover opacity-30"
-            priority
+      <section className="bg-ink-900 py-16 text-white sm:py-20">
+        <div className="container-x">
+          <SectionHeading
+            tone="dark"
+            as="h1"
+            eyebrow="Contact"
+            title="Talk to the clinic"
+            description="Send a message and the clinic will get back to you. For urgent problems, please call."
           />
-        </div>
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="font-heading text-4xl md:text-5xl lg:text-6xl text-white mb-6"
-            >
-              Get in Touch
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-body text-lg text-white max-w-3xl mx-auto"
-            >
-              We&apos;re here to help with any questions you may have about our services.
-            </motion.p>
-          </div>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Contact Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="bg-white p-8 rounded-lg border border-primary-gold"
-            >
-              <h2 className="font-heading text-3xl text-black mb-6">Send Us a Message</h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <section className="section bg-cream-100">
+        <div className="container-x grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
+          {/* Form */}
+          <div className="card p-7 lg:p-10">
+            <h2 className="font-heading text-2xl text-ink-900">Send a message</h2>
+            <p className="mt-2 font-body text-sm text-ink-600">
+              Fields marked with an asterisk are required.
+            </p>
+            <div className="mt-8">
+              <ContactForm />
+            </div>
+          </div>
+
+          {/* Details */}
+          <div className="space-y-6">
+            <div className="card p-7">
+              <h2 className="font-heading text-xl text-ink-900">Clinic details</h2>
+
+              <ul className="mt-5 space-y-5">
+                <li className="flex gap-4">
+                  <RiMapPin2Line aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink" />
                   <div>
-                    <label htmlFor="name" className="block font-ui text-sm text-black mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-primary-gold rounded-lg font-body text-black focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                      required
-                    />
+                    <p className="font-ui text-xs uppercase tracking-wider text-ink-500">Address</p>
+                    <p className="mt-1 font-body text-sm text-ink-900">
+                      {clinic.contact.addressLine}
+                    </p>
+                    {addressIsPlaceholder && (
+                      <PlaceholderBadge className="mt-2" label="Address pending" />
+                    )}
                   </div>
+                </li>
+
+                <li className="flex gap-4">
+                  <RiPhoneLine aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink" />
                   <div>
-                    <label htmlFor="email" className="block font-ui text-sm text-black mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-primary-gold rounded-lg font-body text-black focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="phone" className="block font-ui text-sm text-black mb-2">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-primary-gold rounded-lg font-body text-black focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="subject" className="block font-ui text-sm text-black mb-2">
-                    Subject
-                  </label>
-                  <select
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 border border-primary-gold rounded-lg font-body text-black focus:outline-none focus:ring-2 focus:ring-primary-gold"
-                    required
-                  >
-                    <option value="">Select a subject</option>
-                    <option value="appointment">Book Appointment</option>
-                    <option value="consultation">Request Consultation</option>
-                    <option value="inquiry">General Inquiry</option>
-                    <option value="feedback">Feedback</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="message" className="block font-ui text-sm text-black mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    rows={6}
-                    className="w-full px-4 py-3 border border-primary-gold rounded-lg font-body text-black focus:outline-none focus:ring-2 focus:ring-primary-gold resize-none"
-                    required
-                  ></textarea>
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-black text-white font-ui text-sm tracking-wide px-8 py-4 rounded-full hover:bg-primary-gold transition-all duration-300"
-                >
-                  Send Message
-                </button>
-              </form>
-            </motion.div>
-
-            {/* Contact Information */}
-            <div className="space-y-12">
-              {/* Location & Contact */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-                className="bg-white p-8 rounded-lg border border-primary-gold"
-              >
-                <h3 className="font-heading text-2xl text-black mb-6">Contact Information</h3>
-                <div className="space-y-6">
-                  <div className="flex items-start">
-                    <RiMapPin2Line className="w-6 h-6 text-primary-gold flex-shrink-0 mt-1" />
-                    <div className="ml-4">
-                      <p className="font-ui text-sm text-black font-medium mb-1">Location</p>
-                      <p className="font-body text-black">123 Luxury Lane, Beverly Hills, CA 90210</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <RiPhoneLine className="w-6 h-6 text-primary-gold flex-shrink-0 mt-1" />
-                    <div className="ml-4">
-                      <p className="font-ui text-sm text-black font-medium mb-1">Phone</p>
-                      <a href="tel:+1234567890" className="font-body text-black hover:text-primary-gold transition-colors">
-                        (123) 456-7890
+                    <p className="font-ui text-xs uppercase tracking-wider text-ink-500">Phone</p>
+                    <p className="mt-1 font-body text-sm">
+                      <a
+                        href={toTelHref(clinic.contact.phone)}
+                        className="text-brand-700 hover:text-brand-800"
+                      >
+                        {clinic.contact.phoneDisplay}
                       </a>
-                    </div>
+                      <span className="sr-only"> (placeholder number)</span>
+                    </p>
+                    <PlaceholderBadge className="mt-2" label="Number pending" />
                   </div>
-                  <div className="flex items-start">
-                    <RiMailLine className="w-6 h-6 text-primary-gold flex-shrink-0 mt-1" />
-                    <div className="ml-4">
-                      <p className="font-ui text-sm text-black font-medium mb-1">Email</p>
-                      <a href="mailto:info@whitepearl.com" className="font-body text-black hover:text-primary-gold transition-colors">
-                        info@whitepearl.com
+                </li>
+
+                <li className="flex gap-4">
+                  <RiMailLine aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-gold-ink" />
+                  <div>
+                    <p className="font-ui text-xs uppercase tracking-wider text-ink-500">Email</p>
+                    <p className="mt-1 font-body text-sm">
+                      <a
+                        href={`mailto:${clinic.contact.email}`}
+                        className="text-brand-700 hover:text-brand-800"
+                      >
+                        {clinic.contact.email}
                       </a>
-                    </div>
+                    </p>
+                    <PlaceholderBadge className="mt-2" label="Email pending" />
                   </div>
-                </div>
-              </motion.div>
+                </li>
+              </ul>
 
-              {/* Business Hours */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                viewport={{ once: true }}
-                className="bg-white p-8 rounded-lg border border-primary-gold"
-              >
-                <div className="flex items-center mb-6">
-                  <RiTimeLine className="w-6 h-6 text-primary-gold" />
-                  <h3 className="font-heading text-2xl text-black ml-3">Business Hours</h3>
-                </div>
-                <div className="space-y-3">
-                  {businessHours.map((schedule) => (
-                    <div key={schedule.day} className="flex justify-between">
-                      <span className="font-ui text-black">{schedule.day}</span>
-                      <span className="font-ui text-black">{schedule.hours}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
+              <Alert tone="warning" className="mt-6" title="Placeholder contact details">
+                These details are placeholders and are not connected to the clinic yet. Replace them
+                in <code className="font-mono text-xs">src/content/site.ts</code> before launch.
+              </Alert>
+            </div>
 
-              {/* Social Media */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                viewport={{ once: true }}
-                className="bg-white p-8 rounded-lg border border-primary-gold"
-              >
-                <h3 className="font-heading text-2xl text-black mb-6">Connect With Us</h3>
-                <div className="flex space-x-6">
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary-gold hover:opacity-80 transition-opacity"
-                  >
-                    <RiInstagramLine className="w-8 h-8" />
-                  </a>
-                  <a
-                    href="https://facebook.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary-gold hover:opacity-80 transition-opacity"
-                  >
-                    <RiFacebookLine className="w-8 h-8" />
-                  </a>
-                  <a
-                    href="https://twitter.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary-gold hover:opacity-80 transition-opacity"
-                  >
-                    <RiTwitterXLine className="w-8 h-8" />
-                  </a>
+            <div className="card p-7">
+              <h2 className="flex items-center gap-2 font-heading text-xl text-ink-900">
+                <RiTimeLine aria-hidden="true" className="h-5 w-5 text-gold-ink" />
+                Opening hours
+              </h2>
+
+              <dl className="mt-5 divide-y divide-ink-900/8">
+                {hours.map((day) => (
+                  <div key={day.weekday} className="flex items-center justify-between py-2.5">
+                    <dt className="font-ui text-sm text-ink-700">{day.label}</dt>
+                    <dd className="font-ui text-sm text-ink-900">
+                      {day.closed || !day.open || !day.close
+                        ? "Closed"
+                        : `${displayTime(day.open)} – ${displayTime(day.close)}`}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+
+              {!scheduleConfirmed && (
+                <div className="mt-5">
+                  <PlaceholderBadge label="Demo schedule" />
+                  <p className="mt-2 font-body text-xs leading-relaxed text-ink-500">
+                    {clinic.scheduleNotice}
+                  </p>
                 </div>
-              </motion.div>
+              )}
+            </div>
+
+            <div className="card p-7">
+              <h2 className="font-heading text-xl text-ink-900">Languages</h2>
+              <p className="mt-2 font-body text-sm text-ink-600">
+                {clinic.languages.join(" · ")}
+              </p>
+              <PlaceholderBadge className="mt-3" label="To confirm" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Map Section */}
-      <section className="py-20 bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl text-white mb-4">Find Us</h2>
-            <p className="font-body text-white">
-              Located in the heart of Beverly Hills, our clinic offers convenient access and valet parking.
-            </p>
-          </div>
-          <div className="relative h-[400px] rounded-lg overflow-hidden">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3305.7153676817196!2d-118.40034168478258!3d34.0736498808061!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2b93cca9c7ab1%3A0xe2ce30e735620d15!2sBeverly%20Hills%2C%20CA%2090210!5e0!3m2!1sen!2sus!4v1635000000000!5m2!1sen!2sus"
-              width="100%"
-              height="400"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="rounded-lg"
-            ></iframe>
+      {/* Map */}
+      <section className="section bg-white">
+        <div className="container-x">
+          <SectionHeading
+            eyebrow="Find us"
+            title="Location"
+            description="A map will be embedded once the clinic's exact address is confirmed."
+          />
+
+          <div className="mt-8 overflow-hidden rounded-card border border-ink-900/10">
+            {clinic.contact.mapEmbedUrl ? (
+              <iframe
+                src={clinic.contact.mapEmbedUrl}
+                title={`Map showing the location of ${clinic.name}`}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-[24rem] w-full border-0"
+              />
+            ) : (
+              <div className="flex h-[24rem] flex-col items-center justify-center gap-3 bg-[linear-gradient(135deg,#f2ede5,#e7dfd2)] px-6 text-center">
+                <RiMapPin2Line aria-hidden="true" className="h-8 w-8 text-gold-ink" />
+                <p className="font-heading text-xl text-ink-900">Map placeholder</p>
+                <p className="max-w-md font-body text-sm text-ink-600">
+                  Set <code className="font-mono text-xs">clinic.contact.mapEmbedUrl</code> to a
+                  Google Maps embed URL and it will render here. No address is invented on this
+                  site.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>
     </main>
   );
-} 
+}

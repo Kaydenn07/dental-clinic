@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Dr. Bouamara Dental Clinic">
+  <rect width="64" height="64" rx="14" fill="#0A2A2E"/>
+  <path d="M18 40c0-11 4-18 14-18s14 7 14 18c0 6-3 8-5 8s-3-3-3-7c0-3-2-5-6-5s-6 2-6 5c0 4-1 7-3 7s-5-2-5-8Z" fill="#C2A06B" opacity="0.92"/>
+  <text x="32" y="30" font-family="Georgia, 'Times New Roman', serif" font-size="19" font-weight="600" fill="#FFFFFF" text-anchor="middle">DB</text>
+</svg>
