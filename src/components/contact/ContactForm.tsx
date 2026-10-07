@@ -26,7 +26,7 @@ export function ContactForm() {
       <div className="space-y-5">
         <span
           aria-hidden="true"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-700/10 text-brand-800"
         >
           <RiCheckLine className="h-7 w-7" />
         </span>

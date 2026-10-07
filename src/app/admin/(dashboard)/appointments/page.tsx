@@ -109,7 +109,7 @@ export default async function AdminAppointmentsPage({
                   month: "long",
                   timeZone: bookingConfig.timeZone,
                 }).format(new Date(`${dateKey}T12:00:00Z`))}
-                {dateKey === todayKey && <Badge tone="teal">Today</Badge>}
+                {dateKey === todayKey && <Badge tone="brand">Today</Badge>}
                 <span className="font-ui text-xs font-normal text-ink-400">
                   {dayRecords.length} appointment{dayRecords.length === 1 ? "" : "s"}
                 </span>

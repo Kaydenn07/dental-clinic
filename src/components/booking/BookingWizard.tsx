@@ -92,7 +92,7 @@ export function BookingWizard({
       <div className="card p-8 lg:p-10">
         <span
           aria-hidden="true"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-700/10 text-brand-800"
         >
           <RiCheckLine className="h-7 w-7" />
         </span>
@@ -226,7 +226,7 @@ export function BookingWizard({
                         value={service.id}
                         checked={selected}
                         onChange={() => setServiceId(service.id)}
-                        className="mt-1 h-4 w-4 accent-[#0F5C55]"
+                        className="mt-1 h-4 w-4 accent-[#1A5788]"
                       />
                       <span className="min-w-0">
                         <span className="block font-ui text-sm font-medium text-ink-900">

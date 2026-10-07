@@ -73,13 +73,14 @@ export function SectionHeading({
 
 /* ----------------------------------------------------------------- badges -- */
 
-type BadgeTone = "neutral" | "gold" | "teal" | "success" | "warning" | "danger" | "info";
+type BadgeTone = "neutral" | "gold" | "brand" | "success" | "warning" | "danger" | "info";
 
 const BADGE_TONES: Record<BadgeTone, string> = {
   neutral: "border-ink-900/12 bg-ink-900/5 text-ink-700",
   gold: "border-gold-ink/30 bg-gold-ink/10 text-gold-ink",
-  teal: "border-brand-700/25 bg-brand-700/8 text-brand-800",
-  success: "border-emerald-600/25 bg-emerald-500/10 text-emerald-800",
+  brand: "border-brand-700/25 bg-brand-700/8 text-brand-800",
+  // Success reads as deep dental blue, not green — the palette is navy/blue/gold only.
+  success: "border-brand-800/30 bg-brand-800/10 text-brand-800",
   warning: "border-amber-600/30 bg-amber-400/15 text-amber-900",
   danger: "border-red-500/25 bg-red-500/10 text-red-700",
   info: "border-sky-600/25 bg-sky-500/10 text-sky-800",
@@ -161,7 +162,7 @@ export function Alert({
 }) {
   const tones = {
     info: "border-brand-700/20 bg-brand-50 text-ink-800",
-    success: "border-emerald-600/25 bg-emerald-50 text-emerald-900",
+    success: "border-brand-800/25 bg-brand-50 text-ink-900",
     warning: "border-amber-500/30 bg-amber-50 text-amber-900",
     danger: "border-red-500/25 bg-red-50 text-red-800",
   } as const;
@@ -301,7 +302,7 @@ export function MediaPlaceholder({
       aria-label={`${alt} — photograph pending`}
       className={cn(
         "relative flex flex-col items-center justify-center overflow-hidden",
-        "bg-[linear-gradient(135deg,#0f5c55_0%,#0a2a2e_55%,#113e3b_100%)]",
+        "bg-[linear-gradient(135deg,#123054_0%,#0B2342_55%,#06152B_100%)]",
         className,
       )}
     >

@@ -52,7 +52,7 @@ export default async function AdminOverviewPage() {
           label="Today"
           value={today.length}
           hint={`Clinic time zone: ${bookingConfig.timeZone}`}
-          tone="teal"
+          tone="brand"
           icon={<RiCalendarCheckLine className="h-5 w-5" />}
           href="#today"
         />

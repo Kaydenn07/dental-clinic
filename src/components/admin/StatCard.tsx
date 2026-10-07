@@ -14,15 +14,15 @@ export function StatCard({
   label: string;
   value: ReactNode;
   hint?: string;
-  tone?: "default" | "warning" | "success" | "teal";
+  tone?: "default" | "warning" | "success" | "brand";
   href?: string;
   icon?: ReactNode;
 }) {
   const tones = {
     default: "border-ink-900/10 bg-white",
     warning: "border-amber-500/30 bg-amber-50",
-    success: "border-emerald-600/25 bg-emerald-50",
-    teal: "border-brand-700/20 bg-brand-50",
+    success: "border-brand-800/25 bg-brand-50",
+    brand: "border-brand-700/20 bg-brand-50",
   } as const;
 
   const content = (

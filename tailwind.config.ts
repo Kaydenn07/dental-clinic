@@ -3,15 +3,21 @@ import type { Config } from "tailwindcss";
 /**
  * Design system — Dr. Bouamara Dental Clinic
  * ------------------------------------------
- * Identity: deep "clinical teal" + champagne gold on a warm cream canvas.
- * This is intentionally different from the WhitePearl black/white/gold
- * template the project started from.
+ * Identity, taken from the clinic's own logo:
+ *   deep navy  +  refined dental blue  +  white / warm white  +  champagne gold.
  *
- * Token rules that keep the palette accessible:
- *  - `gold.DEFAULT` (#C2A06B) is DECORATIVE ONLY (borders, icons, fills on dark).
- *    On white it only reaches 2.4:1 contrast.
- *  - `gold.ink` (#8A6D3A) is the accessible gold for TEXT on light backgrounds (4.85:1).
- *  - `brand.*` teals are safe for text on light backgrounds (7.8:1).
+ * There is deliberately NO green in this palette.
+ *
+ * Token rules that keep the palette accessible (verified with WCAG contrast
+ * maths against both #FFFFFF and the warm white #FAFAF8):
+ *  - `ink.*`   deep navy. `ink-900` is the primary text/background navy
+ *              (15.8:1 on white); `ink-400` is the lightest tone still safe for
+ *              small text (5.0:1).
+ *  - `brand.*` dental blue. `brand-700` is the link/accent blue (7.6:1).
+ *  - `gold.DEFAULT` (#C2A06B) is DECORATIVE ONLY (borders, rules, icons, and
+ *              text on navy where it reaches 6.4:1). On white it is only 2.4:1.
+ *  - `gold.ink` (#8A6D3A) is the accessible gold for TEXT on light backgrounds
+ *              (4.85:1).
  */
 export default {
   content: [
@@ -23,37 +29,40 @@ export default {
   theme: {
     extend: {
       colors: {
-        /** Deep teal-black used for dark sections, footer, admin sidebar. */
+        /**
+         * Deep navy — dark sections, footer, admin sidebar, primary text.
+         * The low end of the scale doubles as "text on navy" tones.
+         */
         ink: {
-          DEFAULT: "#0A2A2E",
-          50: "#F1F6F6",
-          100: "#DCE9E8",
-          200: "#B7D2D0",
-          300: "#8FB6B3",
-          400: "#5E8F8B",
-          500: "#3B726D",
-          600: "#275A56",
-          700: "#164744",
-          800: "#0F3634",
-          900: "#0A2A2E",
-          950: "#061B1E",
+          DEFAULT: "#0B2342",
+          50: "#F2F7FB",
+          100: "#E1EBF3",
+          200: "#C6D8E8",
+          300: "#9CBAD3",
+          400: "#4A7396",
+          500: "#3D6C99",
+          600: "#2A5580",
+          700: "#1A3E68",
+          800: "#123054",
+          900: "#0B2342",
+          950: "#06152B",
         },
-        /** Primary brand teal. */
+        /** Refined dental blue — links, primary actions, accents. */
         brand: {
-          DEFAULT: "#0F5C55",
-          50: "#EFFAF8",
-          100: "#D5F1ED",
-          200: "#ADE4DC",
-          300: "#79CEC4",
-          400: "#45B0A5",
-          500: "#269189",
-          600: "#1A746E",
-          700: "#0F5C55",
-          800: "#104A46",
-          900: "#113E3B",
-          950: "#052422",
+          DEFAULT: "#1A5788",
+          50: "#EFF7FD",
+          100: "#DCEDFB",
+          200: "#B9DAF5",
+          300: "#8CC1EC",
+          400: "#57A2DE",
+          500: "#2E86C8",
+          600: "#1F6CA8",
+          700: "#1A5788",
+          800: "#17466C",
+          900: "#143A57",
+          950: "#0B2338",
         },
-        /** Champagne gold accent. */
+        /** Champagne gold — accents only (matches the logo's gold curve). */
         gold: {
           DEFAULT: "#C2A06B",
           soft: "#D8BC8B",
@@ -61,14 +70,14 @@ export default {
           ink: "#8A6D3A",
           deep: "#6F5527",
         },
+        /** Warm white canvas. */
         cream: {
-          DEFAULT: "#FAF8F5",
-          50: "#FEFDFB",
-          100: "#FAF8F5",
-          200: "#F2EDE5",
-          300: "#E7DFD2",
+          DEFAULT: "#FAFAF8",
+          50: "#FDFDFC",
+          100: "#FAFAF8",
+          200: "#F4F4F1",
+          300: "#E8E8E3",
         },
-        whatsapp: "#25D366",
       },
       fontFamily: {
         display: ["Cormorant Garamond", "Georgia", "serif"],

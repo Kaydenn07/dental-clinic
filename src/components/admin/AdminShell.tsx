@@ -12,6 +12,7 @@ import {
   RiMailLine,
   RiMenuLine,
   RiSettings3Line,
+  RiTimeLine,
 } from "react-icons/ri";
 
 import { Logo } from "@/components/brand/Logo";
@@ -56,6 +57,7 @@ export function AdminShell({
       badge: pendingAppointments,
     },
     { href: "/admin/messages", label: "Messages", Icon: RiMailLine, badge: unreadMessages },
+    { href: "/admin/hours", label: "Opening hours", Icon: RiTimeLine },
     { href: "/admin/settings", label: "Settings & setup", Icon: RiSettings3Line },
   ];
 
@@ -178,7 +180,7 @@ export function AdminShell({
             {session.isDemo ? (
               <Badge tone="warning">Demo session</Badge>
             ) : (
-              <Badge tone="teal">{session.role}</Badge>
+              <Badge tone="brand">{session.role}</Badge>
             )}
           </div>
         </header>

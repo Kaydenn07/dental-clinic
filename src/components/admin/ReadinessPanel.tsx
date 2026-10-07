@@ -47,7 +47,7 @@ export async function ReadinessPanel() {
               className={cn(
                 "mt-1.5 h-2 w-2 shrink-0 rounded-full",
                 item.state === "done"
-                  ? "bg-emerald-500"
+                  ? "bg-brand-700"
                   : item.state === "blocked"
                     ? "bg-red-500"
                     : "bg-amber-400",
@@ -57,7 +57,7 @@ export async function ReadinessPanel() {
               <p className="font-ui text-sm font-medium text-ink-900">
                 {item.label}
                 {item.state === "done" && (
-                  <span className="ml-2 font-ui text-xs font-normal text-emerald-700">done</span>
+                  <span className="ml-2 font-ui text-xs font-normal text-brand-800">done</span>
                 )}
               </p>
               <p className="mt-1 font-body text-xs leading-relaxed text-ink-500">{item.detail}</p>

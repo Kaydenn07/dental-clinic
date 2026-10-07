@@ -67,7 +67,7 @@ export function AppointmentRow({
           <p className="flex flex-wrap items-center gap-2 font-body text-sm text-ink-800">
             <RiUserLine aria-hidden="true" className="h-4 w-4 text-gold-ink" />
             {record.patientName}
-            {record.isNewPatient && <Badge tone="teal">New patient</Badge>}
+            {record.isNewPatient && <Badge tone="brand">New patient</Badge>}
           </p>
 
           <p className="font-body text-xs text-ink-500">

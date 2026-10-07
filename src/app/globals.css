@@ -19,11 +19,11 @@
 @layer base {
   :root {
     /* Mirrors tailwind.config.ts so raw CSS can reuse the tokens. */
-    --ink: #0a2a2e;
-    --brand: #0f5c55;
+    --ink: #0b2342;
+    --brand: #1a5788;
     --gold: #c2a06b;
     --gold-ink: #8a6d3a;
-    --cream: #faf8f5;
+    --cream: #fafaf8;
   }
 
   html {
